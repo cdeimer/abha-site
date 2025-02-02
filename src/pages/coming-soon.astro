@@ -1,0 +1,19 @@
+---
+import Hero from '~/components/widgets/Hero.astro';
+import Layout from '~/layouts/PageLayout.astro';
+const metadata = {
+  title: 'Contact',
+};
+---
+
+<Layout metadata={metadata}>
+  <Hero>
+    <Fragment slot="title">
+      <span class="text-accent dark:text-white highlight"> Coming Soon</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      Sorry, but this page is still undergoing design review and gathering community input. Please check back later.
+    </Fragment>
+  </Hero>
+</Layout>
