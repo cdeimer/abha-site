@@ -7,17 +7,38 @@ import Features2 from '~/components/widgets/Features2.astro';
 const metadata = {
   title: 'Contact',
 };
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  console.log(data);
+
+  if (!data.get('name') || !data.get('email')) {
+    console.log('Name and email are required');
+    return;
+  }
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    body: data,
+  })
+    .then((res) => res.json())
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
 ---
 
 <Layout metadata={metadata}>
   <!-- HeroText Widget ******************* -->
 
-  <HeroText tagline="Contact" title="Let's Connect!" />
+  <HeroText tagline="Contact" title="Get in touch!" />
 
   <ContactUs
     id="form"
-    title="Drop us a message today!"
-    subtitle="For quicker answers, explore our FAQs section. You may find the solution you're looking  for right there! If not, our support team is delighted to help you."
+    title="Send us an email:"
     inputs={[
       {
         type: 'text',
@@ -29,50 +50,32 @@ const metadata = {
         name: 'email',
         label: 'Email',
       },
+      {
+        type: 'hidden',
+        name: 'access_key',
+        value: 'f775e8c6-55f9-458e-aedd-05bc3e274f1a',
+      },
     ]}
     textarea={{
       label: 'Message',
     }}
-    disclaimer={{
-      label:
-        'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
-    }}
-    description="Our support team typically responds within 24 business hours."
+    description="One of our members will reach out to you shortly."
   />
 
   <!-- Features2 Widget ************** -->
 
   <Features2
-    title="We are here to help!"
+    title="Or, check us out on social media:"
     items={[
       {
-        title: 'General support',
-        description: `Chat with us for inquiries related to account management, website navigation, payment issues, accessing purchased templates or general questions about the website's functionality.`,
+        title: 'Bluesky',
+        description: 'abhousingaction.org',
+        icon: 'tabler:brand-bluesky',
       },
       {
-        title: 'Contact sales',
-        description:
-          'Chat with us for questions about purchases, customization options, licensing for commercial use, inquiries about specific template, etc.',
-      },
-      {
-        title: 'Technical support',
-        description:
-          'Chat with us when facing issues like template installation, problems editing difficulties, compatibility issues with software or download errors, or other technical challenges related to using the templates.',
-      },
-      {
-        title: 'Phone',
-        description: '+1 (234) 567-890',
-        icon: 'tabler:headset',
-      },
-      {
-        title: 'Email',
-        description: 'contact@support.com',
-        icon: 'tabler:mail',
-      },
-      {
-        title: 'Location',
-        description: '1234 Lorem Ipsum St, 12345, Miami, EEUU',
-        icon: 'tabler:map-pin',
+        title: 'Instagram',
+        description: 'abhousing_action',
+        icon: 'tabler:brand-instagram',
       },
     ]}
   />
