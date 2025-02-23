@@ -1,0 +1,34 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Features2 from '~/components/widgets/Features2.astro';
+import type { Item } from '~/types';
+
+const metadata = {
+  title: 'Resources',
+};
+
+const articles: Item[] = [
+  {
+    title: "To fix Massachusetts' housing crisis, we need to build. Here's why that's hard.",
+    description: 'WGBH - February 13, 2025',
+    link: 'https://www.wgbh.org/news/housing/2025-02-13/to-fix-massachusetts-housing-crisis-we-need-to-build-heres-why-thats-hard',
+    icon: 'tabler:news',
+  },
+  {
+    title: 'Can luxury housing do anything for homelessness?',
+    description: 'Justine Underhill - December 27, 2024',
+    link: 'https://www.youtube.com/watch?v=rQW4W1_SJmc',
+    icon: 'tabler:brand-youtube',
+  },
+  {
+    title: 'Anti-Displacement Action Plan',
+    description: 'City of Boston - December, 2024',
+    link: 'https://www.boston.gov/departments/planning-advisory-council/anti-displacement-action-plan',
+    icon: 'tabler:file-text',
+  },
+];
+---
+
+<Layout metadata={metadata}>
+  <Features2 title="Resources" items={articles} />
+</Layout>
