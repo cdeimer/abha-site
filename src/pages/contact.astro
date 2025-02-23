@@ -7,28 +7,6 @@ import Features2 from '~/components/widgets/Features2.astro';
 const metadata = {
   title: 'Contact',
 };
-
-if (Astro.request.method === 'POST') {
-  const data = await Astro.request.formData();
-  console.log(data);
-
-  if (!data.get('name') || !data.get('email')) {
-    console.log('Name and email are required');
-    return;
-  }
-
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    body: data,
-  })
-    .then((res) => res.json())
-    .then((response) => {
-      console.log(response);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
 ---
 
 <Layout metadata={metadata}>
@@ -61,6 +39,26 @@ if (Astro.request.method === 'POST') {
     }}
     description="One of our members will reach out to you shortly."
   />
+
+  <script is:inline>
+    document.getElementById('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((response) => {
+          console.log(response);
+          form.reset();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    });
+  </script>
 
   <!-- Features2 Widget ************** -->
 
