@@ -7,6 +7,7 @@ Repository containing the source code for Allston-Brighton Housing Action. Forke
 - Change hero image in index
 - Add form validation to contact form
 - Implement "About" and "Join us" pages
+- Remove RSS icon
 
 ## Commands
 
