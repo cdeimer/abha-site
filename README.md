@@ -3,6 +3,7 @@
 Repository containing the source code for Allston-Brighton Housing Action. Forked from the [Astrowind](https://github.com/onwidget/astrowind) template.
 
 ## Next Changes
+
 - Change favicon
 - Change hero image in index
 - Add form validation to contact form
