@@ -4,7 +4,7 @@ export const headerData = {
   links: [
     //{ text: 'About Us', href: getPermalink('/coming-soon') },
     { text: 'Calendar', href: getPermalink('/calendar') },
-    { text: 'Resources', href: getPermalink('/coming-soon') },
+    { text: 'Resources', href: getPermalink('/resources') },
     //{ text: 'Get Involved', href: getPermalink('/coming-soon') },
     { text: 'Contact', href: getPermalink('/contact') },
   ],
