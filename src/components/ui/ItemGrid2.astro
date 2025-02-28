@@ -32,28 +32,52 @@ const {
         containerClass
       )}
     >
-      {items.map(({ title, description, icon, callToAction, classes: itemClasses = {} }) => (
-        <div
-          class={twMerge(
-            'relative flex flex-col intersect-once intersect-quarter intercept-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
-            panelClass,
-            itemClasses?.panel
-          )}
-        >
-          {(icon || defaultIcon) && (
-            <Icon name={icon || defaultIcon} class={twMerge('mb-2 w-10 h-10', defaultIconClass, itemClasses?.icon)} />
-          )}
-          <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
-          {description && (
-            <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
-          )}
-          {callToAction && (
-            <div class="mt-2">
-              <Button {...callToAction} />
-            </div>
-          )}
-        </div>
-      ))}
+      {items.map(({ title, description, icon, callToAction, classes: itemClasses = {}, link = '' }) => {
+        const content = (
+          <>
+            {(icon || defaultIcon) && (
+              <Icon name={icon || defaultIcon} class={twMerge('mb-2 w-10 h-10', defaultIconClass, itemClasses?.icon)} />
+            )}
+            <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
+            {description && (
+              <p
+                class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)}
+                set:html={description}
+              />
+            )}
+            {callToAction && (
+              <div class="mt-2">
+                <Button {...callToAction} />
+              </div>
+            )}
+          </>
+        );
+
+        return link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={twMerge(
+              'relative flex flex-col p-4 transition duration-200 ease-in-out border border-transparent hover:border-gray-400 hover:shadow-md',
+              panelClass,
+              itemClasses?.panel
+            )}
+          >
+            {content}
+          </a>
+        ) : (
+          <div
+            class={twMerge(
+              'relative flex flex-col intersect-once intersect-quarter intercept-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
+              panelClass,
+              itemClasses?.panel
+            )}
+          >
+            {content}
+          </div>
+        );
+      })}
     </div>
   )
 }
