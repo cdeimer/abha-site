@@ -1,7 +1,10 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import Features2 from '~/components/widgets/Features2.astro';
+import { Content as ResourceList } from '~/components/markdown/resourceList.md';
+import Prose from '~/components/markdown/Prose.astro';
 import type { Item } from '~/types';
+import Headline from '~/components/blog/Headline.astro';
 
 const metadata = {
   title: 'Resources',
@@ -21,14 +24,66 @@ const articles: Item[] = [
     icon: 'tabler:brand-youtube',
   },
   {
-    title: 'Anti-Displacement Action Plan',
-    description: 'City of Boston - December, 2024',
-    link: 'https://www.boston.gov/departments/planning-advisory-council/anti-displacement-action-plan',
-    icon: 'tabler:file-text',
+    title: 'Zoning Matters: How Land-Use Policies Shape Our Lives',
+    description: 'Urban Institute - June 12, 2019',
+    link: 'https://www.youtube.com/watch?v=aLMsI92crZw',
+    icon: 'tabler:brand-youtube',
+  },
+];
+
+const localOrgs: Item[] = [
+  { title: 'Abundant Housing Massachusetts', link: 'https://www.abundanthousingma.org/' },
+  { title: 'TransitMatters', link: 'https://transitmatters.org/' },
+  { title: 'MassBike', link: 'https://www.massbike.org/' },
+  { title: 'Livable Streets', link: 'https://www.livablestreets.info/' },
+  { title: 'Allston-Brighton Health Collaborative', link: 'https://abhealthcollaborative.org/' },
+];
+
+const books: Item[] = [
+  {
+    title: 'Killed by a Traffic Engineer - Shattering the Delusion That Science Underlies Our Transportation System',
+    description: 'Wesley E. Marshall, 2025',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C8867213?locale=en-US',
+  },
+  {
+    title: 'Paved Paradise - How Parking Explains the World',
+    description: 'Henry Grabar, 2023',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C8361094?locale=en-US',
+  },
+  {
+    title: 'The Affordable City - Strategies for Putting Housing Within Reach (and Keeping It There)',
+    description: 'Shane Phillips, 2020',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C7595473?locale=en-US',
+  },
+  {
+    title: 'Golden Gates - Fighting for Housing in America',
+    description: 'Conor Dougherty, 2020',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C7442046?locale=en-US',
+  },
+  {
+    title: 'Better Buses, Better Cities - How to Plan, Run, and Win the Fight for Effective Transit',
+    description: 'Steven Higashide, 2019',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C7323310?locale=en-US',
+  },
+  {
+    title: 'Generation Priced Out - Who Gets to Live in the New Urban America',
+    description: 'Randy Shaw, 2018',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C6981646?locale=en-US',
+  },
+  {
+    title: 'The High Cost of Free Parking',
+    description: 'Donald Shoup, 2005',
+    link: 'https://bpl.bibliocommons.com/v2/record/S75C986237?locale=en-US',
   },
 ];
 ---
 
 <Layout metadata={metadata}>
-  <Features2 title="Resources" items={articles} />
+  <Features2 title="Local and Regional Organizations" items={localOrgs} />
+  <Features2 title="Articles and Videos" items={articles} />
+  <Features2 title="Books" items={books} />
+  <Headline title="Resource List" />
+  <Prose>
+    <ResourceList />
+  </Prose>
 </Layout>
