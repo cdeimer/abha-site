@@ -7,6 +7,8 @@ import Features2 from '~/components/widgets/Features2.astro';
 const metadata = {
   title: 'Contact',
 };
+
+const timeout = 3000; // 3 seconds
 ---
 
 <Layout metadata={metadata}>
@@ -40,11 +42,32 @@ const metadata = {
     description="One of our members will reach out to you shortly."
   />
 
-  <script is:inline>
+  <script is:inline define:vars={{ timeout }}>
     document.getElementById('form').addEventListener('submit', (e) => {
       e.preventDefault();
       const form = e.target;
       const data = new FormData(form);
+      const submitButton = document.getElementById('submitButton');
+      const originalText = submitButton.textContent; // Store original button text
+      const originalClasses = submitButton.classList.value; // Store original classes.
+
+      // Reset button to initial state
+      submitButton.classList.remove('bg-green-500', 'bg-red-500', 'animate-shake', 'animate-pulse');
+      submitButton.textContent = 'Send';
+
+      // check the form data, all fields are required
+      for (const [, value] of data.entries()) {
+        if (!value) {
+          submitButton.classList.add('bg-red-500', 'animate-shake');
+          submitButton.textContent = 'Error - All fields are required!';
+          setTimeout(() => {
+            submitButton.classList.value = originalClasses;
+            submitButton.textContent = originalText;
+          }, timeout); // Reset after 2 seconds
+          return;
+        }
+      }
+
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         body: data,
@@ -52,13 +75,81 @@ const metadata = {
         .then((res) => res.json())
         .then((response) => {
           console.log(response);
-          form.reset();
+          if (response.success) {
+            // Assuming the API returns a 'success' property
+            submitButton.classList.add('bg-green-500', 'animate-pulse');
+            submitButton.textContent = 'Email sent!';
+            form.reset();
+            setTimeout(() => {
+              submitButton.classList.value = originalClasses;
+              submitButton.textContent = originalText;
+            }, timeout); // Reset after 2 seconds
+          } else {
+            submitButton.classList.add('bg-red-500', 'animate-shake');
+            submitButton.textContent = 'Error - Please try again!';
+            setTimeout(() => {
+              submitButton.classList.value = originalClasses;
+              submitButton.textContent = originalText;
+            }, timeout); // Reset after 2 seconds
+          }
         })
         .catch((error) => {
           console.error(error);
+          submitButton.classList.add('bg-red-500', 'animate-shake');
+          submitButton.textContent = 'Error - Please try again!';
+          setTimeout(() => {
+            submitButton.classList.value = originalClasses;
+            submitButton.textContent = originalText;
+          }, timeout); // Reset after 2 seconds
         });
     });
   </script>
+
+  <style>
+    /* Add your animation styles here */
+    .animate-shake {
+      animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      transform: translate3d(0, 0, 0);
+    }
+
+    @keyframes shake {
+      10%,
+      90% {
+        transform: translate3d(-1px, 0, 0);
+      }
+
+      20%,
+      80% {
+        transform: translate3d(2px, 0, 0);
+      }
+
+      30%,
+      50%,
+      70% {
+        transform: translate3d(-4px, 0, 0);
+      }
+
+      40%,
+      60% {
+        transform: translate3d(4px, 0, 0);
+      }
+    }
+
+    .animate-pulse {
+      animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: scale(1.05);
+        opacity: 0.8;
+      }
+    }
+  </style>
 
   <!-- Features2 Widget ************** -->
 
