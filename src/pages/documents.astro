@@ -1,0 +1,32 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Headline from '~/components/blog/Headline.astro';
+import { getCollection } from 'astro:content';
+
+const metadata = {
+  title: 'Documents',
+};
+
+const allDocs = await getCollection('database');
+console.log(allDocs);
+console.log(allDocs.map((doc) => doc.data.properties['Doc name'].title));
+---
+
+<Layout metadata={metadata}>
+  <Headline title="Documents" />
+
+  <div class="prose max-w-3xl">
+    <p>Here are the latest updates from our database:</p>
+    <ul>
+      {
+        allDocs.map((doc) => (
+          <li id={doc.id}>
+            <a href={`/documents/${doc.id}`}>
+              {doc.data.properties['Doc name'].title.map((item) => item.plain_text).join('')}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Layout>
