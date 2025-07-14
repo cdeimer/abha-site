@@ -1,17 +1,110 @@
 ---
-import { getCollection, render } from 'astro:content';
-// 1. Generate a new path for every collection entry
+import { getCollection } from 'astro:content';
+import Layout from '~/layouts/PageLayout.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+// Astro's function to generate static pages for each document
 export async function getStaticPaths() {
-  const documents = await getCollection('database');
-  return documents.map((doc) => ({
+  const allDocs = await getCollection('database');
+  return allDocs.map((doc) => ({
     params: { id: doc.id },
     props: { doc },
   }));
 }
-// 2. For your template, you can get the entry directly from the prop
+
+// Get the specific document passed from getStaticPaths
 const { doc } = Astro.props;
-const { Content } = await render(doc);
+
+// --- Extract data from the document object for easier use ---
+
+// Title
+const title = doc.data.properties['name']?.title[0]?.plain_text || 'Untitled Document';
+
+// Author details
+type AuthorUser = {
+  object: 'user';
+  id: string;
+  name: string;
+  avatar_url: string;
+};
+
+const author = doc.data.properties['author']?.created_by as AuthorUser;
+
+// Dates (formatted for readability)
+const createdDate = new Date(doc.data.properties['Created time']?.created_time).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const lastUpdatedDate = new Date(doc.data.properties['Last updated time']?.last_edited_time).toLocaleDateString(
+  'en-US',
+  {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }
+);
+
+// Tags
+const tags = doc.data.properties['tags']?.multi_select || [];
+
+// Page icon
+const iconUrl = doc.data.icon?.type === 'external' ? doc.data.icon.external.url : null;
+
+// The main HTML content of the document
+const contentHtml = doc.rendered?.html;
+
+// Set the page's metadata for the <head> tag
+const metadata = {
+  title: title,
+};
 ---
 
-<h1>{doc.data.properties['Doc name'].title}</h1>
-<Content />
+<Layout metadata={metadata}>
+  <WidgetWrapper>
+    <article class="max-w-4xl mx-auto">
+      <header class="mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-slate-200 flex items-center gap-4">
+          {iconUrl && <img src={iconUrl} alt="doc icon" class="w-10 h-10" />}
+          {title}
+        </h1>
+
+        <div class="mt-6 flex items-center gap-4 text-gray-600 dark:text-gray-400">
+          {
+            author && (
+              <div class="flex items-center gap-2">
+                <img src={author.avatar_url} alt={author.name} class="w-8 h-8 rounded-full" />
+                <span class="font-medium">{author.name}</span>
+              </div>
+            )
+          }
+          <div class="text-sm">
+            <time datetime={doc.data.properties['Created time']?.created_time}>Published: {createdDate}</time>
+            {createdDate !== lastUpdatedDate && <span class="italic"> · Updated: {lastUpdatedDate}</span>}
+          </div>
+        </div>
+
+        {
+          tags.length > 0 && (
+            <div class="mt-4 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )
+        }
+      </header>
+
+      <hr class="my-8" />
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="md:col-span-3 prose prose-lg max-w-none dark:prose-invert">
+          <div set:html={contentHtml} />
+        </div>
+      </div>
+    </article>
+  </WidgetWrapper>
+</Layout>

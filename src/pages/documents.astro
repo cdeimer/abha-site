@@ -2,31 +2,53 @@
 import Layout from '~/layouts/PageLayout.astro';
 import Headline from '~/components/blog/Headline.astro';
 import { getCollection } from 'astro:content';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
 const metadata = {
   title: 'Documents',
 };
 
 const allDocs = await getCollection('database');
-console.log(allDocs);
-console.log(allDocs.map((doc) => doc.data.properties['Doc name'].title));
+console.log('All docs print:', JSON.stringify(allDocs, null, 2));
+console.log(allDocs.map((doc) => doc.data.properties['name'].title.map((item) => item.plain_text).join('')));
+
+const getSortableDate = (doc) => {
+  const dateString = doc.data.properties['date_created']?.date?.start || 0;
+  return new Date(dateString).getTime();
+};
+
+const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a));
 ---
 
 <Layout metadata={metadata}>
   <Headline title="Documents" />
-
-  <div class="prose max-w-3xl">
-    <p>Here are the latest updates from our database:</p>
-    <ul>
+  <WidgetWrapper>
+    <div class="space-y-8">
       {
-        allDocs.map((doc) => (
-          <li id={doc.id}>
-            <a href={`/documents/${doc.id}`}>
-              {doc.data.properties['Doc name'].title.map((item) => item.plain_text).join('')}
+        sortedDocs.map((doc) => (
+          <article class="border-b pb-6">
+            <a href={`/documents/${doc.id}`} id={doc.id} class="block">
+              <h2 class="text-2xl font-bold text-blue-600 hover:underline">
+                {doc.data.properties['name'].title.map((item) => item.plain_text).join('')}
+              </h2>
             </a>
-          </li>
+            {doc.data.properties['Created time'] && (
+              <p class="text-sm text-gray-500 mt-1">
+                {new Date(doc.data.properties['Created time'].created_time).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </p>
+            )}
+            {doc.data.properties['description'] && (
+              <p class="text-base text-gray-700 mt-2">
+                {doc.data.properties['description'].rich_text.map((item) => item.plain_text).join('')}
+              </p>
+            )}
+          </article>
         ))
       }
-    </ul>
-  </div>
+    </div>
+  </WidgetWrapper>
 </Layout>
