@@ -3,8 +3,8 @@ import { notionLoader } from 'notion-astro-loader';
 
 const database = defineCollection({
   loader: notionLoader({
-    auth: 'placeholder api key',
-    database_id: 'placeholder database id',
+    auth: import.meta.env.NOTION_API_KEY,
+    database_id: import.meta.env.NOTION_DATABASE_ID,
     filter: {
       property: 'Draft',
       checkbox: {

@@ -9,11 +9,10 @@ const metadata = {
 };
 
 const allDocs = await getCollection('database');
-console.log('All docs print:', JSON.stringify(allDocs, null, 2));
-console.log(allDocs.map((doc) => doc.data.properties['name'].title.map((item) => item.plain_text).join('')));
 
 const getSortableDate = (doc) => {
-  const dateString = doc.data.properties['date_created']?.date?.start || 0;
+  const dateString =
+    doc.data.properties['date_published']?.date?.start || doc.data.properties['date_created']?.date?.start || 0;
   return new Date(dateString).getTime();
 };
 
@@ -21,7 +20,7 @@ const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a
 ---
 
 <Layout metadata={metadata}>
-  <Headline title="Documents" />
+  <Headline title="Posts" />
   <WidgetWrapper>
     <div class="space-y-8">
       {
@@ -32,17 +31,20 @@ const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a
                 {doc.data.properties['name'].title.map((item) => item.plain_text).join('')}
               </h2>
             </a>
-            {doc.data.properties['Created time'] && (
+            {doc.data.properties['date_created'] && (
               <p class="text-sm text-gray-500 mt-1">
-                {new Date(doc.data.properties['Created time'].created_time).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {getSortableDate(doc) > 0
+                  ? new Date(getSortableDate(doc)).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      timeZone: 'UTC',
+                    })
+                  : 'No date available'}
               </p>
             )}
             {doc.data.properties['description'] && (
-              <p class="text-base text-gray-700 mt-2">
+              <p class="text-base text-gray-700 dark:text-gray-200 mt-2">
                 {doc.data.properties['description'].rich_text.map((item) => item.plain_text).join('')}
               </p>
             )}
