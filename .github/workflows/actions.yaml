@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
     strategy:
       matrix:
         node-version:
@@ -30,6 +33,9 @@ jobs:
 
   check:
     runs-on: ubuntu-latest
+    env:
+      NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+      NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 22
