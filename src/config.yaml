@@ -18,7 +18,7 @@ metadata:
   openGraph:
     site_name: ABHA
     images:
-      - url: '~/assets/images/default.png'
+      - url: '~/assets/images/Banner.png'
         width: 1200
         height: 628
     type: website
