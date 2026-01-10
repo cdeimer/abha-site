@@ -41,10 +41,10 @@
   .tally-card {
     /* Layout & Spacing */
     @apply mx-auto my-8 max-w-2xl p-4 overflow-hidden;
-    
+
     /* Visuals (Borders, Shadow, Rounded) */
     @apply rounded-xl border border-gray-200 shadow-sm bg-white;
-    
+
     /* Dark Mode Adaptation (Matches your .btn colors) */
     @apply dark:bg-slate-900 dark:border-slate-700;
   }
