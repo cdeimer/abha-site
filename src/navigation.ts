@@ -7,7 +7,7 @@ export const headerData = {
     // { text: 'Posts', href: getPermalink('/documents') }, // Uncomment when documents page is ready
     { text: 'Resources', href: getPermalink('/resources') },
     //{ text: 'Get Involved', href: getPermalink('/coming-soon') },
-    { text: 'Contact', href: getPermalink('/contact') },
+    { text: 'Contact', href: getPermalink('https://tally.so/r/dWae1o') },
   ],
 };
 
