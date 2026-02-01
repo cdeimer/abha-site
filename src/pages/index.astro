@@ -3,7 +3,6 @@ import Layout from '~/layouts/PageLayout.astro';
 
 import Hero from '~/components/widgets/Hero.astro';
 import Features from '~/components/widgets/Features.astro';
-import CallToAction from '~/components/widgets/CallToAction.astro';
 
 const metadata = {
   title: 'ABHA',
@@ -70,22 +69,42 @@ const metadata = {
     ]}
   />
 
-  <!-- CallToAction Widget *********** -->
+  <div class="tally-card">
+    <iframe
+      data-tally-src="https://tally.so/embed/dWae1o?transparentBackground=1&dynamicHeight=1"
+      loading="lazy"
+      width="100%"
+      height="932"
+      title="ABHA Contact Form"
+    >
+    </iframe>
+  </div>
+  <script>
+    //Define the shape of Tally, just needs to have loadEmbeds function
+    declare const Tally: { loadEmbeds: () => void };
 
-  <CallToAction
-    actions={[
-      {
-        variant: 'primary',
-        text: 'Subscribe to our Newsletter',
-        href: 'https://forms.gle/jhhe6kkhQ5Fw31N29',
-        target: '_blank',
-      },
-    ]}
-  >
-    <Fragment slot="title"> Join us! </Fragment>
+    const TALLY_SCRIPT_URL = 'https://tally.so/widgets/embed.js';
 
-    <Fragment slot="subtitle">
-      Interested in building a more affordable, inclusive, and vibrant Allston-Brighton? Get involved today!
-    </Fragment>
-  </CallToAction>
+    const loadTallyEmbeds = () => {
+      if (typeof Tally !== 'undefined') {
+        Tally.loadEmbeds();
+      } else {
+        document.querySelectorAll<HTMLIFrameElement>('iframe[data-tally-src]:not([src])').forEach((e) => {
+          e.src = e.dataset.tallySrc || '';
+        });
+      }
+    };
+
+    const isScriptLoaded = document.querySelector(`script[src="${TALLY_SCRIPT_URL}"]`) !== null;
+
+    if (typeof Tally !== 'undefined') {
+      loadTallyEmbeds();
+    } else if (!isScriptLoaded) {
+      const script = document.createElement('script');
+      script.src = TALLY_SCRIPT_URL;
+      script.onload = loadTallyEmbeds;
+      script.onerror = loadTallyEmbeds;
+      document.body.appendChild(script);
+    }
+  </script>
 </Layout>
