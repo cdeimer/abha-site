@@ -8,7 +8,8 @@ const metadata = {
   title: 'Documents',
 };
 
-const allDocs = await getCollection('database');
+const notionIsConfigured = Boolean(import.meta.env.NOTION_API_KEY && import.meta.env.NOTION_DATABASE_ID);
+const allDocs = notionIsConfigured ? await getCollection('database') : [];
 
 const getSortableDate = (doc) => {
   const dateString =
@@ -22,6 +23,15 @@ const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a
 <Layout metadata={metadata}>
   <Headline title="Posts" />
   <WidgetWrapper>
+    {
+      !notionIsConfigured ? (
+        <div class="rounded-lg border border-orange-300 bg-orange-50 p-4 text-orange-800 dark:border-orange-700 dark:bg-orange-900/30 dark:text-orange-200">
+          <strong>Notion API is not configured</strong>. Set `NOTION_API_KEY` and `NOTION_DATABASE_ID` in your env
+          (.env/local) to load documents.
+        </div>
+      ) : null
+    }
+
     <div class="space-y-8">
       {
         sortedDocs.map((doc) => (

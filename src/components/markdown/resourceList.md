@@ -38,3 +38,11 @@
 - [YIMBY Reference List](https://www.zotero.org/groups/4878123/yimby_references/library)
 - [Shelterforce](https://shelterforce.org/) - Reporting on housing policy and affordable housing issues
 - [Strong Towns](https://www.strongtowns.org/) - Advocacy for financially sustainable urban development
+
+## Boston News and Community Resources
+
+- [Allstonia](https://allstonia.com/) - Neighbor-run news for Allston
+- [Universal Hub](https://www.universalhub.com/) - Independent Boston news and discussion forum
+- [The Bulletin](https://www.bulletinnewspapers.com/) - Community newspaper covering many Boston neighborhoods
+- [MASSter List](https://www.massterlist.com/) - Daily newsletter covering politics and policy
+- [Streetsblog Mass](https://mass.streetsblog.org/) - Reporting on transportation and transit issues in Massachusetts
