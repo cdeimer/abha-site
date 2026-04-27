@@ -2,54 +2,26 @@
 import { getCollection, render } from 'astro:content';
 import MarkdownLayout from '~/layouts/MarkdownLayout.astro';
 
-// Astro's function to generate static pages for each document
 export async function getStaticPaths() {
-  const allDocs = await getCollection('database');
+  const allDocs = await getCollection('posts');
   return allDocs.map((doc) => ({
-    params: { id: doc.id },
+    params: { id: doc.slug },
     props: { doc },
   }));
 }
 
-// Get the specific document passed from getStaticPaths
 const { doc } = Astro.props;
-
 const { Content } = await render(doc);
 
-// --- Extract data from the document object for easier use ---
-
-// Title
-const title = doc.data.properties['name']?.title[0]?.plain_text || 'Untitled Document';
-
-// Author details
-type AuthorUser = {
-  object: 'user';
-  id: string;
-  name: string;
-  avatar_url: string;
-};
-
-const author = doc.data.properties['author']?.created_by as AuthorUser;
-let written_by = doc.data.properties['written_by'].rich_text[0].plain_text;
-
-// IF written_by is not set, use the author's name
-if (!written_by && author) {
-  written_by = author.name;
-} else if (!written_by) {
-  written_by = 'Unknown Author';
-}
-
-// Dates (formatted for readability)
-const createdDate = new Date(doc.data.properties['date_created']?.created_time).toLocaleDateString('en-US', {
+const title = doc.data.title || 'Untitled Document';
+const writtenBy = doc.data.written_by || doc.data.author || 'Unknown Author';
+const createdDate = new Date(doc.data.date_created).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
-
-const datePublished = doc.data.properties['date_published']?.date?.start;
-// If date_published is not set, use the created date
-const dateToUse = datePublished || doc.data.properties['date_created']?.created_time;
-
+const dateToUse = doc.data.date_published || doc.data.date_created;
+const dateToUseString = dateToUse instanceof Date ? dateToUse.toISOString() : dateToUse;
 const formattedDateToUse = dateToUse
   ? new Date(dateToUse).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -58,30 +30,23 @@ const formattedDateToUse = dateToUse
       timeZone: 'UTC',
     })
   : 'No date available';
-
-const lastUpdatedDate = new Date(doc.data.properties['date_last_updated']?.last_edited_time).toLocaleDateString(
-  'en-US',
-  {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }
-);
-
-// Tags
-const tags = doc.data.properties['tags']?.multi_select || [];
-
-// Page icon
-const iconUrl = doc.data.icon?.type === 'external' ? doc.data.icon.external.url : null;
+const lastUpdatedDate = doc.data.date_last_updated
+  ? new Date(doc.data.date_last_updated).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : createdDate;
+const tags = doc.data.tags || [];
 ---
 
 <MarkdownLayout frontmatter={{ title, breadcrumb: { text: 'Back to all posts', href: '/documents' } }}>
   <div class="border-y dark:border-gray-700 my-8 py-4 flex flex-wrap justify-between items-center gap-4">
     <div class="flex items-center gap-3">
       <div>
-        {author && <div class="font-semibold text-gray-800 dark:text-gray-200">{written_by}</div>}
+        <div class="font-semibold text-gray-800 dark:text-gray-200">{writtenBy}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          <time datetime={doc.data.properties['Created time']?.created_time}>{formattedDateToUse}</time>
+          <time datetime={dateToUseString}>{formattedDateToUse}</time>
           {createdDate !== lastUpdatedDate && <span class="italic"> · Last updated {lastUpdatedDate}</span>}
         </div>
       </div>
@@ -93,13 +58,12 @@ const iconUrl = doc.data.icon?.type === 'external' ? doc.data.icon.external.url 
           <div class="flex flex-wrap gap-2">
             {tags.map((tag) => (
               <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                {tag.name}
+                {tag}
               </span>
             ))}
           </div>
         )
       }
-      {iconUrl && <img src={iconUrl} alt="Post Icon" class="w-6 h-6" />}
     </div>
   </div>
   <Content />
