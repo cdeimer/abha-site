@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
 const metadata = {
-  title: 'Documents',
+  title: 'Posts',
 };
 
 const allDocs = await getCollection('posts');
@@ -28,7 +28,7 @@ const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a
         ) : (
           sortedDocs.map((doc) => (
             <article class="border-b pb-6">
-              <a href={`/documents/${doc.slug}`} id={doc.slug} class="block">
+              <a href={`/posts/${doc.slug}`} id={doc.slug} class="block">
                 <h2 class="text-2xl font-bold text-blue-600 hover:underline">{doc.data.title}</h2>
               </a>
               {doc.data.date_created && (
