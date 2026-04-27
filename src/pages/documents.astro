@@ -1,6 +1,5 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
-import Headline from '~/components/blog/Headline.astro';
 import { getCollection } from 'astro:content';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
@@ -19,7 +18,6 @@ const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a
 ---
 
 <Layout metadata={metadata}>
-  <Headline title="Posts" />
   <WidgetWrapper>
     <div class="space-y-8">
       {
