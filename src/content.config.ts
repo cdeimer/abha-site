@@ -1,26 +1,18 @@
 import { defineCollection } from 'astro:content';
-import { notionLoader } from 'notion-astro-loader';
+import { z } from 'astro/zod';
 
-const notionIsConfigured = Boolean(import.meta.env.NOTION_API_KEY && import.meta.env.NOTION_DATABASE_ID);
-
-const database = defineCollection({
-  loader: notionIsConfigured
-    ? notionLoader({
-        auth: import.meta.env.NOTION_API_KEY,
-        database_id: import.meta.env.NOTION_DATABASE_ID,
-        filter: {
-          property: 'Draft',
-          checkbox: {
-            equals: false,
-          },
-        },
-      })
-    : {
-        name: 'notion-loader-fallback',
-        async load() {
-          console.warn('Notion content loader disabled: NOTION_API_KEY and/or NOTION_DATABASE_ID is missing.');
-        },
-      },
+const posts = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    author: z.string(),
+    written_by: z.string().optional(),
+    date_created: z.union([z.string(), z.date()]),
+    date_published: z.union([z.string(), z.date()]).optional(),
+    date_last_updated: z.union([z.string(), z.date()]).optional(),
+    tags: z.array(z.string()).default([]),
+    icon: z.string().optional(),
+  }),
 });
 
-export const collections = { database };
+export const collections = { posts };

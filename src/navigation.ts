@@ -4,7 +4,7 @@ export const headerData = {
   links: [
     //{ text: 'About Us', href: getPermalink('/coming-soon') },
     { text: 'Calendar', href: getPermalink('/calendar') },
-    { text: 'Posts', href: getPermalink('/documents') }, // Uncomment when documents page is ready
+    { text: 'Posts', href: getPermalink('/posts') },
     { text: 'Resources', href: getPermalink('/resources') },
     //{ text: 'Get Involved', href: getPermalink('/coming-soon') },
     { text: 'Contact', href: getPermalink('/') + '#contact-form' },
@@ -13,7 +13,7 @@ export const headerData = {
 
 export const footerData = {
   links: [],
-  secondaryLinks: [{ text: '(c) ABHA 2025', href: getPermalink('/terms') }],
+  secondaryLinks: [{ text: '(c) ABHA 2026', href: getPermalink('/terms') }],
   socialLinks: [
     { ariaLabel: 'Bluesky', icon: 'tabler:brand-bluesky', href: 'https://bsky.app/profile/abhousingaction.org' },
     { ariaLabel: 'Instagram', icon: 'tabler:brand-instagram', href: 'https://www.instagram.com/abhousing_action/' },

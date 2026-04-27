@@ -4,7 +4,6 @@ Repository containing the source code for Allston-Brighton Housing Action. Forke
 
 ## Next Changes
 
-- Documents/Updates/Blog page
 - CRM integration for mailing list/member management
 
 ## Commands

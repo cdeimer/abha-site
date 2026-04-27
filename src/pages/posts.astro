@@ -1,0 +1,55 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+
+const metadata = {
+  title: 'Posts',
+};
+
+const allDocs = await getCollection('posts');
+
+const getSortableDate = (doc: { data: { date_published?: string | Date; date_created: string | Date } }) => {
+  const date = doc.data.date_published || doc.data.date_created;
+  return new Date(date).getTime();
+};
+
+const sortedDocs = allDocs.sort((a, b) => getSortableDate(b) - getSortableDate(a));
+---
+
+<Layout metadata={metadata}>
+  <WidgetWrapper>
+    <div class="space-y-8">
+      {
+        sortedDocs.length === 0 ? (
+          <div class="rounded-lg border border-gray-300 bg-gray-50 p-4 text-gray-700 dark:border-gray-700 dark:bg-gray-900/30 dark:text-gray-200">
+            No posts were found in the local `src/content/posts` directory.
+          </div>
+        ) : (
+          sortedDocs.map((doc) => (
+            <article class="border-b pb-6">
+              <a href={`/posts/${doc.slug}`} id={doc.slug} class="block">
+                <h2 class="text-2xl font-bold text-blue-600 hover:underline">{doc.data.title}</h2>
+              </a>
+              {doc.data.date_created && (
+                <p class="text-sm text-gray-500 mt-1">
+                  {getSortableDate(doc) > 0
+                    ? new Date(getSortableDate(doc)).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        timeZone: 'UTC',
+                      })
+                    : 'No date available'}
+                </p>
+              )}
+              {doc.data.description && (
+                <p class="text-base text-gray-700 dark:text-gray-200 mt-2">{doc.data.description}</p>
+              )}
+            </article>
+          ))
+        )
+      }
+    </div>
+  </WidgetWrapper>
+</Layout>
