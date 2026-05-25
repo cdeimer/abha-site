@@ -16,6 +16,6 @@ We decided on this specific route to draw attention to the current state of our 
 
 A huge thank you to our ride volunteers and everyone who came out to pedal with us. If you couldn't make it but want to help, please use the **Boston 311** app to report missing flexposts in the neighborhood! The more individual tickets the city receives, the harder it is to ignore the demand for safe streets.
 
-![Group photo post ride](./group-photo.png)
+![Group photo post ride](./group-photo-cropped.png)
 ![Riders on the road](./north-beacon-st.jpg)
 ![Riders on the Greenway](./greenway.jpg)
