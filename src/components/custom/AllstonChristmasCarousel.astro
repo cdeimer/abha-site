@@ -1,0 +1,228 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// 1. Fetch all image metadata from the folder automatically
+const imageFiles = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/images/aceing-allston-christmas/*.{jpeg,jpg,png,webp}',
+  { eager: true }
+);
+
+// 2. Extract the images and sort them alphabetically by their file path
+const slides = Object.values(imageFiles)
+  .map((file) => file.default)
+  .sort((a, b) => a.src.localeCompare(b.src));
+---
+
+<div class="relative w-full max-w-4xl mx-auto group">
+  <!-- Scroll Snap Container -->
+  <div id="carousel-container" class="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-4">
+    {
+      slides.map((slide, index) => (
+        <div class="snap-center shrink-0 w-full flex justify-center">
+          <Image
+            src={slide}
+            alt={`Guide Page ${index + 1}`}
+            class="w-full h-auto object-contain rounded-lg shadow-md border border-gray-200"
+            loading={index === 0 ? 'eager' : 'lazy'}
+          />
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Previous Button -->
+  <button
+    id="prev-btn"
+    class="absolute left-4 top-[calc(50%-0.5rem)] -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+    aria-label="Previous page"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="2.5"
+      stroke="currentColor"
+      class="w-6 h-6"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
+    </svg>
+  </button>
+
+  <!-- Next Button -->
+  <button
+    id="next-btn"
+    class="absolute right-4 top-[calc(50%-0.5rem)] -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+    aria-label="Next page"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="2.5"
+      stroke="currentColor"
+      class="w-6 h-6"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
+    </svg>
+  </button>
+</div>
+<div class="max-w-4xl mx-auto mt-8 p-6 bg-blue-50 rounded-lg shadow-sm border border-blue-100 mb-12">
+  <h3 class="text-2xl font-bold text-slate-800 mb-6 border-b border-blue-200 pb-2">Allston Christmas Resources</h3>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- Disposal & Recycling -->
+    <div>
+      <h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">City Disposal & Recycling</h4>
+      <ul class="space-y-3 text-sm">
+        <li>
+          <a
+            href="https://www.boston.gov/departments/public-works/mattress-recycling#/mattress"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Mattress Disposal Rules</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.boston.gov/departments/new-urban-mechanics/coordinated-furniture-pick-pilot"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Arrange for Disposal</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.boston.gov/departments/public-works/recycling-clothing-and-textiles"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Textile Donation</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tenant Rights -->
+    <div>
+      <h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">Tenant Rights Info</h4>
+      <ul class="space-y-3 text-sm">
+        <li>
+          <a
+            href="https://www.mass.gov/guides/the-attorney-generals-guide-to-landlord-and-tenant-rights"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">State Guidelines</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.boston.gov/departments/inspectional-services/tenant-rights-and-responsibilities"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">City Guidelines</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <!-- Organizations & Platforms -->
+    <div>
+      <h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">Sell, Give Away & Donate</h4>
+      <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700">
+        <li>
+          <a
+            href="https://www.facebook.com/groups/1550115971925250/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words"
+            >Everything Free Allston-Brighton Facebook group</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.facebook.com/marketplace/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Facebook Marketplace</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.craigslist.org/area/boston"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Craigslist</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.goodwillmass.org/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Goodwill</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.emassbigs.org/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Big Brother Big Sister</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.cradlestocrayons.org/boston/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Cradles to Crayons</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://littlefreelibrary.org/map/"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline break-words">Little Free Libraries</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <!-- Key Contacts -->
+    <div>
+      <h4 class="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">Key Contacts</h4>
+      <ul class="space-y-2 text-sm text-slate-700">
+        <li><strong>Inspectional Services Department:</strong> 617-635-5300</li>
+        <li><strong>City Councilor Liz Breadon’s Office:</strong> 617-635-3113</li>
+        <li><strong>City Services:</strong> Call 311</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Hide the default scrollbar for a cleaner presentation */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+
+<script>
+  const container = document.getElementById('carousel-container');
+  const prevBtn = document.getElementById('prev-btn') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('next-btn') as HTMLButtonElement | null;
+
+  if (container && prevBtn && nextBtn) {
+    const scrollAmount = () => container.clientWidth;
+
+    prevBtn.addEventListener('click', () => {
+      container.scrollBy({ left: -scrollAmount(), behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      container.scrollBy({ left: scrollAmount(), behavior: 'smooth' });
+    });
+
+    const updateButtons = () => {
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      prevBtn.disabled = container.scrollLeft <= 5;
+      nextBtn.disabled = container.scrollLeft >= maxScroll - 5;
+    };
+
+    container.addEventListener('scroll', updateButtons);
+    updateButtons();
+  }
+</script>
