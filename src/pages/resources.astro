@@ -5,6 +5,7 @@ import { Content as ResourceList } from '~/components/markdown/resourceList.md';
 import Prose from '~/components/markdown/Prose.astro';
 import type { Item } from '~/types';
 import Headline from '~/components/blog/Headline.astro';
+import AllstonChristmasCarousel from '~/components/custom/AllstonChristmasCarousel.astro';
 
 const metadata = {
   title: 'Resources',
@@ -79,6 +80,7 @@ const books: Item[] = [
 ---
 
 <Layout metadata={metadata}>
+  <AllstonChristmasCarousel />
   <Features2 title="Local and Regional Organizations" items={localOrgs} />
   <Features2 title="Articles and Videos" items={articles} />
   <Features2 title="Books" items={books} />
