@@ -6,6 +6,7 @@ export const headerData = {
     { text: 'Calendar', href: getPermalink('/calendar') },
     { text: 'Posts', href: getPermalink('/posts') },
     { text: 'Resources', href: getPermalink('/resources') },
+    //{ text: 'Games', href: getPermalink('/games') },
     //{ text: 'Get Involved', href: getPermalink('/coming-soon') },
     { text: 'Contact', href: getPermalink('/') + '#contact-form' },
   ],
