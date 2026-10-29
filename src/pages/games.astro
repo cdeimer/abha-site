@@ -1,0 +1,14 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import ZoningVisualizer from '~/components/custom/ZoningVisualizer.astro';
+
+const metadata = {
+  title: 'Games — Interactive Boston Zoning Visualizer',
+  description:
+    'Try to build a legal 3-family triple-decker on a classic Allston-Brighton residential lot and see how Boston’s Article 51 zoning rules make it impossible.',
+};
+---
+
+<Layout metadata={metadata}>
+  <ZoningVisualizer />
+</Layout>

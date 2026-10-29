@@ -1,0 +1,1866 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<section class="relative py-8 md:py-12 max-w-7xl mx-auto px-4 sm:px-6">
+  <!-- Intro Header -->
+  <div class="max-w-4xl mx-auto text-center mb-8">
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-heading mb-4">
+      Can You Build a Legal <span class="text-accent dark:text-purple-400">Triple-Decker</span>?
+    </h1>
+    <p class="text-base sm:text-lg text-muted max-w-3xl mx-auto leading-relaxed">
+      You own an empty <strong>40&prime; &times; 100&prime; (4,000 sq. ft.)</strong> residential lot in Allston-Brighton&rsquo;s
+      <strong>Three-Family Residential (<code class="font-mono text-sm">3F-4000</code>)</strong> zoning subdistrict, flanked
+      by two classic Boston triple-deckers built around 1910 (before zoning existed). Draw a building box in the empty lot
+      and add stories to see if you can build a 3-family home without violating a zoning rule.
+    </p>
+  </div>
+
+  <!-- Main Workspace Grid: Left = Lot Drawing Canvas & 3D Elevation, Right = Controls & Live Zoning Table -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- Left Column: Interactive Lot Plan + Streetscape Elevation (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      <!-- Top Card: Interactive Top-Down Site Plan -->
+      <div
+        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/60"
+        >
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
+              Interactive Lot Plan (Top-Down View)
+            </h3>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label
+              class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+            >
+              <input
+                type="checkbox"
+                id="toggle-setback-guides"
+                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>Show Setback Limits</span>
+            </label>
+            <label
+              class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+            >
+              <input
+                type="checkbox"
+                id="toggle-garage"
+                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>Add 2-Car Rear Garage</span>
+            </label>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                id="preset-neighbor"
+                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition cursor-pointer"
+              >
+                Copy Neighbor
+              </button>
+              <button
+                type="button"
+                id="preset-clear"
+                class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 transition cursor-pointer"
+              >
+                Clear Lot
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 sm:p-4 bg-slate-100/70 dark:bg-slate-950/60">
+          <div class="relative w-full select-none">
+            <svg
+              id="lot-svg"
+              viewBox="0 0 700 615"
+              class="w-full h-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-[#e8f0e6] dark:bg-[#132019] shadow-inner touch-none"
+              aria-label="Interactive zoning lot map showing three 40 by 100 foot lots"
+            >
+              <defs>
+                <!-- Subtle 5-foot grid pattern (25x25 units) -->
+                <pattern id="lot-grid" width="25" height="25" patternUnits="userSpaceOnUse" x="50" y="35">
+                  <path
+                    d="M 25 0 L 0 0 0 25"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    class="text-emerald-900/15 dark:text-emerald-200/10"></path>
+                </pattern>
+                <!-- Hatch pattern for non-buildable setback zone -->
+                <pattern
+                  id="setback-hatch"
+                  width="12"
+                  height="12"
+                  patternTransform="rotate(45 0 0)"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <line x1="0" y1="0" x2="0" y2="12" stroke="#ef4444" stroke-width="2" stroke-opacity="0.22"></line>
+                </pattern>
+                <!-- Shingle roof texture for neighbor triple-deckers -->
+                <pattern id="neighbor-roof" width="10" height="10" patternUnits="userSpaceOnUse">
+                  <path d="M 0 10 L 10 10" stroke="#475569" stroke-width="1" stroke-opacity="0.25"></path>
+                </pattern>
+              </defs>
+
+              <!-- Rear Property Context Header -->
+              <rect x="0" y="0" width="700" height="35" class="fill-slate-200/80 dark:fill-slate-900/90"></rect>
+              <text
+                x="350"
+                y="22"
+                text-anchor="middle"
+                class="fill-slate-600 dark:fill-slate-400 text-[11px] font-bold tracking-wider uppercase"
+              >
+                Rear Lot Line (Abutting Backyard Parcels)
+              </text>
+
+              <!-- Grass background for all 3 lots -->
+              <rect x="50" y="35" width="600" height="500" class="fill-[#dcebd8] dark:fill-[#192a20]"></rect>
+              <rect x="50" y="35" width="600" height="500" fill="url(#lot-grid)"></rect>
+
+              <!-- Left & Right Neighbor Lots Tint -->
+              <rect x="50" y="35" width="200" height="500" class="fill-slate-900/5 dark:fill-black/25"></rect>
+              <rect x="450" y="35" width="200" height="500" class="fill-slate-900/5 dark:fill-black/25"></rect>
+
+              <!-- Center Lot Highlight ("YOUR LOT") -->
+              <rect
+                id="center-lot-bg"
+                x="250"
+                y="35"
+                width="200"
+                height="500"
+                class="fill-emerald-50/40 dark:fill-emerald-900/10"></rect>
+
+              <!-- ================= LEFT NEIGHBOR TRIPLE-DECKER (Lot 1: X=50..250) ================= -->
+              <g id="left-neighbor-group">
+                <text
+                  x="150"
+                  y="56"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-400 text-[11px] font-bold"
+                >
+                  LOT A: 40&prime; &times; 100&prime; (4,000 sf)
+                </text>
+                <text x="150" y="71" text-anchor="middle" class="fill-slate-500 dark:fill-slate-400 text-[10px]">
+                  Existing 1910 Triple-Decker
+                </text>
+
+                <!-- Rear Porch -->
+                <rect
+                  x="105"
+                  y="220"
+                  width="110"
+                  height="25"
+                  rx="2"
+                  class="fill-amber-900/20 dark:fill-amber-500/15 stroke-amber-800/50 dark:stroke-amber-400/40"
+                  stroke-width="1.5"></rect>
+                <!-- Main Building Footprint (28' x 48') -->
+                <rect
+                  x="90"
+                  y="245"
+                  width="140"
+                  height="240"
+                  rx="3"
+                  class="fill-amber-100 dark:fill-amber-950/80 stroke-amber-800 dark:stroke-amber-500"
+                  stroke-width="2.5"></rect>
+                <rect x="90" y="245" width="140" height="240" fill="url(#neighbor-roof)"></rect>
+                <!-- Front Bay Window & Porch -->
+                <rect
+                  x="100"
+                  y="485"
+                  width="120"
+                  height="22"
+                  rx="2"
+                  class="fill-amber-200/90 dark:fill-amber-900/70 stroke-amber-800 dark:stroke-amber-500"
+                  stroke-width="1.5"></rect>
+                <!-- Ridge line -->
+                <line
+                  x1="160"
+                  y1="245"
+                  x2="160"
+                  y2="485"
+                  stroke="#92400e"
+                  stroke-width="1.5"
+                  stroke-dasharray="4 3"
+                  opacity="0.5"></line>
+
+                <!-- Labels on Left Triple-Decker -->
+                <rect
+                  x="100"
+                  y="322"
+                  width="120"
+                  height="78"
+                  rx="5"
+                  class="fill-white/90 dark:fill-slate-900/90 stroke-amber-700/40"
+                  stroke-width="1"></rect>
+                <text
+                  x="160"
+                  y="341"
+                  text-anchor="middle"
+                  class="fill-slate-800 dark:fill-amber-200 text-[11px] font-extrabold"
+                >
+                  3-Family Triple-Decker
+                </text>
+                <text
+                  x="160"
+                  y="356"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[10px] font-medium"
+                >
+                  28&prime; &times; 48&prime; (1,344 sf/fl)
+                </text>
+                <text
+                  x="160"
+                  y="371"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[10px] font-medium"
+                >
+                  3 Stories &bull; 33 ft &bull; FAR 1.01
+                </text>
+                <text
+                  x="160"
+                  y="388"
+                  text-anchor="middle"
+                  class="fill-rose-700 dark:fill-rose-400 text-[9.5px] font-bold"
+                >
+                  Built 1910 (Pre-Zoning)
+                </text>
+
+                <!-- 4' distance indicator to shared lot line -->
+                <line x1="230" y1="365" x2="250" y2="365" stroke="#64748b" stroke-width="1.5"></line>
+                <text
+                  x="240"
+                  y="359"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold"
+                >
+                  4&prime;
+                </text>
+                <!-- 10' front setback indicator -->
+                <line x1="160" y1="485" x2="160" y2="535" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2 2"
+                ></line>
+                <text x="142" y="523" text-anchor="end" class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold">
+                  10&prime; front
+                </text>
+              </g>
+
+              <!-- ================= RIGHT NEIGHBOR TRIPLE-DECKER (Lot 3: X=450..650) ================= -->
+              <g id="right-neighbor-group">
+                <text
+                  x="550"
+                  y="56"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-400 text-[11px] font-bold"
+                >
+                  LOT C: 40&prime; &times; 100&prime; (4,000 sf)
+                </text>
+                <text x="550" y="71" text-anchor="middle" class="fill-slate-500 dark:fill-slate-400 text-[10px]">
+                  Existing 1910 Triple-Decker
+                </text>
+
+                <!-- Rear Porch -->
+                <rect
+                  x="485"
+                  y="220"
+                  width="110"
+                  height="25"
+                  rx="2"
+                  class="fill-amber-900/20 dark:fill-amber-500/15 stroke-amber-800/50 dark:stroke-amber-400/40"
+                  stroke-width="1.5"></rect>
+                <!-- Main Building Footprint (28' x 48') -->
+                <rect
+                  x="470"
+                  y="245"
+                  width="140"
+                  height="240"
+                  rx="3"
+                  class="fill-amber-100 dark:fill-amber-950/80 stroke-amber-800 dark:stroke-amber-500"
+                  stroke-width="2.5"></rect>
+                <rect x="470" y="245" width="140" height="240" fill="url(#neighbor-roof)"></rect>
+                <!-- Front Porch -->
+                <rect
+                  x="480"
+                  y="485"
+                  width="120"
+                  height="22"
+                  rx="2"
+                  class="fill-amber-200/90 dark:fill-amber-900/70 stroke-amber-800 dark:stroke-amber-500"
+                  stroke-width="1.5"></rect>
+                <line
+                  x1="540"
+                  y1="245"
+                  x2="540"
+                  y2="485"
+                  stroke="#92400e"
+                  stroke-width="1.5"
+                  stroke-dasharray="4 3"
+                  opacity="0.5"></line>
+
+                <!-- Labels on Right Triple-Decker -->
+                <rect
+                  x="480"
+                  y="322"
+                  width="120"
+                  height="78"
+                  rx="5"
+                  class="fill-white/90 dark:fill-slate-900/90 stroke-amber-700/40"
+                  stroke-width="1"></rect>
+                <text
+                  x="540"
+                  y="341"
+                  text-anchor="middle"
+                  class="fill-slate-800 dark:fill-amber-200 text-[11px] font-extrabold"
+                >
+                  3-Family Triple-Decker
+                </text>
+                <text
+                  x="540"
+                  y="356"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[10px] font-medium"
+                >
+                  28&prime; &times; 48&prime; (1,344 sf/fl)
+                </text>
+                <text
+                  x="540"
+                  y="371"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[10px] font-medium"
+                >
+                  3 Stories &bull; 33 ft &bull; FAR 1.01
+                </text>
+                <text
+                  x="540"
+                  y="388"
+                  text-anchor="middle"
+                  class="fill-rose-700 dark:fill-rose-400 text-[9.5px] font-bold"
+                >
+                  Built 1910 (Pre-Zoning)
+                </text>
+
+                <!-- 4' distance indicator to shared lot line -->
+                <line x1="450" y1="365" x2="470" y2="365" stroke="#64748b" stroke-width="1.5"></line>
+                <text
+                  x="460"
+                  y="359"
+                  text-anchor="middle"
+                  class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold"
+                >
+                  4&prime;
+                </text>
+                <!-- 10' front setback indicator -->
+                <line x1="540" y1="485" x2="540" y2="535" stroke="#64748b" stroke-width="1.5" stroke-dasharray="2 2"
+                ></line>
+                <text
+                  x="558"
+                  y="523"
+                  text-anchor="start"
+                  class="fill-slate-600 dark:fill-slate-300 text-[9px] font-bold"
+                >
+                  10&prime; front
+                </text>
+              </g>
+
+              <!-- ================= CENTER LOT SETBACK GUIDES OVERLAY (Hidden by default) ================= -->
+              <g id="setback-guides-layer" class="hidden">
+                <!-- Forbidden Setback Hatch around perimeter of Center Lot -->
+                <rect x="250" y="35" width="200" height="150" fill="url(#setback-hatch)"></rect>
+                <rect x="250" y="435" width="200" height="100" fill="url(#setback-hatch)"></rect>
+                <rect x="250" y="185" width="30" height="250" fill="url(#setback-hatch)"></rect>
+                <rect x="420" y="185" width="30" height="250" fill="url(#setback-hatch)"></rect>
+
+                <!-- Legal Setback Envelope Box -->
+                <rect
+                  x="280"
+                  y="185"
+                  width="140"
+                  height="250"
+                  fill="none"
+                  stroke="#0ea5e9"
+                  stroke-width="2"
+                  stroke-dasharray="6 4"></rect>
+
+                <!-- Setback Guide Labels -->
+                <text
+                  x="350"
+                  y="178"
+                  text-anchor="middle"
+                  class="fill-rose-700 dark:fill-rose-300 text-[9.5px] font-bold"
+                >
+                  &uarr; 30&prime; Min Rear Yard Setback &uarr;
+                </text>
+                <text
+                  x="350"
+                  y="450"
+                  text-anchor="middle"
+                  class="fill-rose-700 dark:fill-rose-300 text-[9.5px] font-bold"
+                >
+                  &darr; 20&prime; Min Front Yard Setback &darr;
+                </text>
+                <text x="350" y="200" text-anchor="middle" class="fill-sky-800 dark:fill-sky-300 text-[9px] font-bold">
+                  Max Setback Envelope (Max 25&prime; W w/ 15&prime; Side Yards &times; 50&prime; D)
+                </text>
+              </g>
+
+              <!-- Center Lot Header Title -->
+              <text
+                x="350"
+                y="56"
+                text-anchor="middle"
+                class="fill-emerald-950 dark:fill-emerald-200 text-[11.5px] font-extrabold"
+              >
+                YOUR LOT: 40&prime; &times; 100&prime; (4,000 sf)
+              </text>
+              <text
+                x="350"
+                y="71"
+                text-anchor="middle"
+                class="fill-emerald-800 dark:fill-emerald-300 text-[10px] font-semibold"
+              >
+                Click &amp; Drag to Draw Building
+              </text>
+
+              <!-- Optional Rear Yard 2-Car Garage -->
+              <g id="garage-group" class="hidden">
+                <rect
+                  x="335"
+                  y="50"
+                  width="100"
+                  height="100"
+                  rx="2"
+                  class="fill-rose-200/90 dark:fill-rose-900/70 stroke-rose-600 dark:stroke-rose-400"
+                  stroke-width="2"></rect>
+                <text
+                  x="385"
+                  y="95"
+                  text-anchor="middle"
+                  class="fill-rose-950 dark:fill-rose-100 text-[10px] font-extrabold"
+                >
+                  2-Car Garage
+                </text>
+                <text
+                  x="385"
+                  y="109"
+                  text-anchor="middle"
+                  class="fill-rose-900 dark:fill-rose-200 text-[9px] font-bold"
+                >
+                  20&prime;&times;20&prime; (400 sf)
+                </text>
+                <text
+                  x="385"
+                  y="123"
+                  text-anchor="middle"
+                  class="fill-rose-800 dark:fill-rose-300 text-[8.5px] font-bold"
+                >
+                  33% of Rear Yard (&gt;25%!)
+                </text>
+              </g>
+
+              <!-- Lot Boundary Lines -->
+              <rect x="50" y="35" width="600" height="500" fill="none" stroke="#334155" stroke-width="2"></rect>
+              <line x1="250" y1="35" x2="250" y2="535" stroke="#1e293b" stroke-width="2.5" stroke-dasharray="7 4"
+              ></line>
+              <line x1="450" y1="35" x2="450" y2="535" stroke="#1e293b" stroke-width="2.5" stroke-dasharray="7 4"
+              ></line>
+
+              <!-- Lot Depth Label (100' on left side) -->
+              <g>
+                <line x1="28" y1="35" x2="28" y2="535" stroke="#64748b" stroke-width="1.5"></line>
+                <line x1="22" y1="35" x2="34" y2="35" stroke="#64748b" stroke-width="1.5"></line>
+                <line x1="22" y1="535" x2="34" y2="535" stroke="#64748b" stroke-width="1.5"></line>
+                <text
+                  x="18"
+                  y="285"
+                  text-anchor="middle"
+                  transform="rotate(-90 18 285)"
+                  class="fill-slate-600 dark:fill-slate-400 text-[10.5px] font-bold"
+                >
+                  100 ft Lot Depth
+                </text>
+              </g>
+
+              <!-- ================= USER'S DRAWN BUILDING FOOTPRINT & LIVE DIMENSION ARROWS ================= -->
+              <g id="user-building-layer" class="hidden">
+                <!-- Dynamic Setback Dimension Lines (populated/updated via JS) -->
+                <g id="live-dimensions-group"></g>
+
+                <!-- User's Building Box -->
+                <rect
+                  id="user-building-rect"
+                  x="280"
+                  y="245"
+                  width="140"
+                  height="240"
+                  rx="3"
+                  class="fill-indigo-500/80 stroke-indigo-900 dark:stroke-white cursor-move"
+                  stroke-width="2.5"></rect>
+
+                <!-- Story Stack Visual Effect (subtle inner offset lines for stories 2 & 3+) -->
+                <rect
+                  id="user-story-ring-2"
+                  x="284"
+                  y="249"
+                  width="132"
+                  height="232"
+                  fill="none"
+                  stroke="white"
+                  stroke-opacity="0.45"
+                  stroke-width="1.5"
+                  pointer-events="none"></rect>
+                <rect
+                  id="user-story-ring-3"
+                  x="288"
+                  y="253"
+                  width="124"
+                  height="224"
+                  fill="none"
+                  stroke="white"
+                  stroke-opacity="0.45"
+                  stroke-width="1.5"
+                  pointer-events="none"></rect>
+
+                <!-- Building Center Info Label -->
+                <g id="user-building-label" pointer-events="none">
+                  <rect id="user-label-bg" x="292" y="330" width="116" height="66" rx="5" class="fill-slate-900/85"
+                  ></rect>
+                  <text
+                    id="user-label-title"
+                    x="350"
+                    y="348"
+                    text-anchor="middle"
+                    class="fill-white text-[11px] font-extrabold"
+                  >
+                    28&prime; &times; 48&prime;
+                  </text>
+                  <text
+                    id="user-label-area"
+                    x="350"
+                    y="364"
+                    text-anchor="middle"
+                    class="fill-indigo-200 text-[10px] font-semibold"
+                  >
+                    1,344 sq. ft. / floor
+                  </text>
+                  <text
+                    id="user-label-stories"
+                    x="350"
+                    y="379"
+                    text-anchor="middle"
+                    class="fill-amber-300 text-[10px] font-bold"
+                  >
+                    3 Stories (4,032 sf)
+                  </text>
+                  <text
+                    id="user-label-far"
+                    x="350"
+                    y="392"
+                    text-anchor="middle"
+                    class="fill-white/90 text-[9px] font-medium"
+                  >
+                    FAR: 1.01
+                  </text>
+                </g>
+
+                <!-- 8 Resize Handles (N, S, W, E, NW, NE, SW, SE) -->
+                <g id="resize-handles-group">
+                  <rect
+                    data-handle="n"
+                    x="340"
+                    y="240"
+                    width="20"
+                    height="10"
+                    rx="2"
+                    class="fill-white stroke-slate-900 cursor-ns-resize"
+                    stroke-width="1.5"></rect>
+                  <rect
+                    data-handle="s"
+                    x="340"
+                    y="480"
+                    width="20"
+                    height="10"
+                    rx="2"
+                    class="fill-white stroke-slate-900 cursor-ns-resize"
+                    stroke-width="1.5"></rect>
+                  <rect
+                    data-handle="w"
+                    x="275"
+                    y="355"
+                    width="10"
+                    height="20"
+                    rx="2"
+                    class="fill-white stroke-slate-900 cursor-ew-resize"
+                    stroke-width="1.5"></rect>
+                  <rect
+                    data-handle="e"
+                    x="415"
+                    y="355"
+                    width="10"
+                    height="20"
+                    rx="2"
+                    class="fill-white stroke-slate-900 cursor-ew-resize"
+                    stroke-width="1.5"></rect>
+
+                  <circle
+                    data-handle="nw"
+                    cx="280"
+                    cy="245"
+                    r="6"
+                    class="fill-white stroke-slate-900 cursor-nwse-resize"
+                    stroke-width="2"></circle>
+                  <circle
+                    data-handle="ne"
+                    cx="420"
+                    cy="245"
+                    r="6"
+                    class="fill-white stroke-slate-900 cursor-nesw-resize"
+                    stroke-width="2"></circle>
+                  <circle
+                    data-handle="sw"
+                    cx="280"
+                    cy="485"
+                    r="6"
+                    class="fill-white stroke-slate-900 cursor-nesw-resize"
+                    stroke-width="2"></circle>
+                  <circle
+                    data-handle="se"
+                    cx="420"
+                    cy="485"
+                    r="6"
+                    class="fill-white stroke-slate-900 cursor-nwse-resize"
+                    stroke-width="2"></circle>
+                </g>
+              </g>
+
+              <!-- ================= SIDEWALK & STREET AT BOTTOM (Y=535..615) ================= -->
+              <!-- Concrete Sidewalk (Y=535..562) -->
+              <rect x="0" y="535" width="700" height="27" class="fill-slate-300 dark:fill-slate-700"></rect>
+              <line x1="0" y1="535" x2="700" y2="535" stroke="#0f172a" stroke-width="2.5"></line>
+              <line x1="0" y1="562" x2="700" y2="562" stroke="#64748b" stroke-width="1.5"></line>
+
+              <!-- Street Asphalt (Y=562..615) -->
+              <rect x="0" y="562" width="700" height="53" class="fill-slate-700 dark:fill-slate-900"></rect>
+              <line
+                x1="30"
+                y1="589"
+                x2="670"
+                y2="589"
+                stroke="#facc15"
+                stroke-width="2"
+                stroke-dasharray="18 14"
+                opacity="0.85"></line>
+              <text
+                x="350"
+                y="606"
+                text-anchor="middle"
+                class="fill-slate-200 text-[11px] font-bold tracking-widest uppercase"
+              >
+                Allston-Brighton Residential Street
+              </text>
+            </svg>
+          </div>
+
+          <div
+            class="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400 px-1"
+          >
+            <span>
+              <strong>Tip:</strong> Drag on the empty lot to draw a building box, drag inside to move it, or drag the white
+              handles to resize.
+            </span>
+            <span class="font-mono">Scale: 1 grid square = 5&prime; &times; 5&prime; (25 sq. ft.)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Card: Live Streetscape Front Elevation (Visualizing Stories & Height) -->
+      <div
+        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/60"
+        >
+          <div class="flex items-center gap-2">
+            <Icon name="tabler:building-skyscraper" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <h3 class="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100">
+              Streetscape Elevation View (Stories &amp; 35&prime; Height Limit)
+            </h3>
+          </div>
+          <span id="elevation-summary" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+            Empty Lot
+          </span>
+        </div>
+
+        <div class="p-3 sm:p-4 bg-gradient-to-b from-sky-100/70 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+          <svg
+            id="elevation-svg"
+            viewBox="0 0 700 245"
+            class="w-full h-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-gradient-to-b from-sky-50 to-emerald-50/30 dark:from-slate-950 dark:to-slate-900"
+            aria-label="Streetscape front elevation showing your building between two triple-deckers"
+          >
+            <!-- 35 ft Max Height Limit Line -->
+            <line x1="40" y1="87.5" x2="660" y2="87.5" stroke="#ef4444" stroke-width="1.8" stroke-dasharray="6 4"
+            ></line>
+            <rect x="52" y="70" width="168" height="16" rx="3" class="fill-rose-600"></rect>
+            <text x="136" y="81" text-anchor="middle" class="fill-white text-[9.5px] font-bold">
+              Max Height: 35 ft / 3 Stories
+            </text>
+
+            <!-- Lot Divider Lines -->
+            <line x1="250" y1="30" x2="250" y2="210" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4"></line>
+            <line x1="450" y1="30" x2="450" y2="210" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4"></line>
+
+            <!-- Left Neighbor Triple-Decker (X=90..230, Ground=210, Top=94.5) -->
+            <g>
+              <rect
+                x="90"
+                y="98"
+                width="140"
+                height="112"
+                class="fill-amber-100 dark:fill-amber-950 stroke-amber-800 dark:stroke-amber-500"
+                stroke-width="2"></rect>
+              <rect x="86" y="92" width="148" height="7" rx="1" class="fill-amber-900 dark:fill-amber-600"></rect>
+              <line x1="90" y1="135" x2="230" y2="135" stroke="#b45309" stroke-width="1.2"></line>
+              <line x1="90" y1="172" x2="230" y2="172" stroke="#b45309" stroke-width="1.2"></line>
+              <!-- Windows Floor 3 -->
+              <rect x="104" y="106" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="132" y="106" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="172" y="106" width="42" height="20" class="fill-amber-50 dark:fill-slate-800 stroke-amber-800"
+              ></rect>
+              <!-- Windows Floor 2 -->
+              <rect x="104" y="143" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="132" y="143" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="172" y="143" width="42" height="20" class="fill-amber-50 dark:fill-slate-800 stroke-amber-800"
+              ></rect>
+              <!-- Windows Floor 1 & Door -->
+              <rect x="104" y="180" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="132" y="180" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="195" y="182" width="16" height="28" class="fill-amber-900 dark:fill-amber-600"></rect>
+              <text
+                x="160"
+                y="60"
+                text-anchor="middle"
+                class="fill-slate-600 dark:fill-slate-400 text-[10px] font-bold"
+              >
+                1910 Triple-Decker (33&prime;)
+              </text>
+            </g>
+
+            <!-- Right Neighbor Triple-Decker (X=470..610, Ground=210, Top=94.5) -->
+            <g>
+              <rect
+                x="470"
+                y="98"
+                width="140"
+                height="112"
+                class="fill-amber-100 dark:fill-amber-950 stroke-amber-800 dark:stroke-amber-500"
+                stroke-width="2"></rect>
+              <rect x="466" y="92" width="148" height="7" rx="1" class="fill-amber-900 dark:fill-amber-600"></rect>
+              <line x1="470" y1="135" x2="610" y2="135" stroke="#b45309" stroke-width="1.2"></line>
+              <line x1="470" y1="172" x2="610" y2="172" stroke="#b45309" stroke-width="1.2"></line>
+              <!-- Windows Floor 3 -->
+              <rect x="486" y="106" width="42" height="20" class="fill-amber-50 dark:fill-slate-800 stroke-amber-800"
+              ></rect>
+              <rect x="546" y="106" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="574" y="106" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <!-- Windows Floor 2 -->
+              <rect x="486" y="143" width="42" height="20" class="fill-amber-50 dark:fill-slate-800 stroke-amber-800"
+              ></rect>
+              <rect x="546" y="143" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="574" y="143" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <!-- Windows Floor 1 & Door -->
+              <rect x="489" y="182" width="16" height="28" class="fill-amber-900 dark:fill-amber-600"></rect>
+              <rect x="546" y="180" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <rect x="574" y="180" width="18" height="20" class="fill-sky-200 dark:fill-sky-900 stroke-amber-800"
+              ></rect>
+              <text
+                x="540"
+                y="60"
+                text-anchor="middle"
+                class="fill-slate-600 dark:fill-slate-400 text-[10px] font-bold"
+              >
+                1910 Triple-Decker (33&prime;)
+              </text>
+            </g>
+
+            <!-- Dynamic User Building Elevation Group -->
+            <g id="user-elevation-group"></g>
+
+            <!-- Ground / Sidewalk Line -->
+            <rect x="0" y="210" width="700" height="35" class="fill-slate-700 dark:fill-slate-800"></rect>
+            <line x1="0" y1="210" x2="700" y2="210" stroke="#334155" stroke-width="3"></line>
+            <text x="150" y="231" text-anchor="middle" class="fill-slate-300 text-[10px] font-semibold">
+              Lot A (40&prime; W)
+            </text>
+            <text x="350" y="231" text-anchor="middle" class="fill-white text-[10.5px] font-extrabold">
+              Your Lot (40&prime; W)
+            </text>
+            <text x="550" y="231" text-anchor="middle" class="fill-slate-300 text-[10px] font-semibold">
+              Lot C (40&prime; W)
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Building Controls + Real-Time Zoning Scorecard (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      <!-- Building & Story Controls Card -->
+      <div
+        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-md space-y-4"
+      >
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+          <h3 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <Icon name="tabler:adjustments-horizontal" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            Building &amp; Story Controls
+          </h3>
+          <span
+            id="footprint-badge"
+            class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
+          >
+            Empty Lot
+          </span>
+        </div>
+
+        <!-- Stories Add/Remove Control -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
+              Building Stories (Max 3 Stories)
+            </label>
+            <span id="stories-display" class="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+              1 Story (Single-Family)
+            </span>
+          </div>
+          <div class="grid grid-cols-6 gap-1.5">
+            <button
+              type="button"
+              id="btn-story-minus"
+              class="col-span-1 py-2 rounded-lg font-extrabold text-base bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 cursor-pointer"
+              aria-label="Remove a story"
+            >
+              &minus;
+            </button>
+            <button
+              type="button"
+              data-set-stories="1"
+              class="story-quick-btn col-span-1 py-2 rounded-lg text-xs font-bold border transition cursor-pointer"
+            >
+              1 Fl
+            </button>
+            <button
+              type="button"
+              data-set-stories="2"
+              class="story-quick-btn col-span-1 py-2 rounded-lg text-xs font-bold border transition cursor-pointer"
+            >
+              2 Fl
+            </button>
+            <button
+              type="button"
+              data-set-stories="3"
+              class="story-quick-btn col-span-1 py-2 rounded-lg text-xs font-bold border transition cursor-pointer"
+            >
+              3 Fl
+            </button>
+            <button
+              type="button"
+              data-set-stories="4"
+              class="story-quick-btn col-span-1 py-2 rounded-lg text-xs font-bold border transition cursor-pointer"
+            >
+              4 Fl
+            </button>
+            <button
+              type="button"
+              id="btn-story-plus"
+              class="col-span-1 py-2 rounded-lg font-extrabold text-base bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+              aria-label="Add a story"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Dwelling Units & Roof Style Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label for="select-units" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+              Dwelling Units (Goal: 3 Units)
+            </label>
+            <select
+              id="select-units"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-semibold px-3 py-2"
+            >
+              <option value="1" selected>1 Unit (Single-Family)</option>
+              <option value="2">2 Units (2-Family Duplex)</option>
+              <option value="3">3 Units (3-Family Goal)</option>
+              <option value="4">4 Units (4-Family)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="select-roof" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+              Roof Type (Max Height: 35&prime;)
+            </label>
+            <select
+              id="select-roof"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-semibold px-3 py-2"
+            >
+              <option value="flat" selected>Flat Deck Roof (11&prime;/fl)</option>
+              <option value="pitched">Gable Pitched Roof (+6&prime; peak)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live Key Metrics Bar -->
+        <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+          <div
+            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80"
+          >
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Area / Unit</div>
+            <div id="metric-unit-area" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+              0 sf
+            </div>
+            <div id="metric-unit-note" class="text-[10px] text-slate-500 font-semibold">Draw a building</div>
+          </div>
+          <div
+            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80"
+          >
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Floor Area</div>
+            <div id="metric-total-area" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+              0 sf
+            </div>
+            <div id="metric-far-note" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              FAR 0.00 (Max 0.80)
+            </div>
+          </div>
+          <div
+            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80"
+          >
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Usable Open Space</div>
+            <div id="metric-open-space" class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+              3,200 sf
+            </div>
+            <div id="metric-open-note" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              Meets 650 sf min
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Dimensional Zoning Table Card -->
+      <div
+        class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between"
+        >
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              Article 51 (3F-4000) Zoning Compliance
+            </h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Allston-Brighton Neighborhood District &bull; Three-Family Residential
+            </p>
+          </div>
+          <span
+            id="compliance-pill"
+            class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+          >
+            0 Violations
+          </span>
+        </div>
+
+        <div class="divide-y divide-slate-200 dark:divide-slate-800 max-h-[540px] overflow-y-auto" id="rules-list">
+          <!-- Populated dynamically in real time by JS -->
+        </div>
+
+        <div
+          class="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between"
+        >
+          <span>Source: Boston Zoning Code, Article 51, Table D</span>
+          <a
+            href="https://library.municode.com/ma/boston/codes/redevelopment_authority?nodeId=ART51TA_TABLE_DALIGNEDIESSUIMRE_THREE-FAMILY_RESIDENTIAL_SUBDISTRICT"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+          >
+            View Official Code &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why It's Impossible: The Triple-Decker Catch-22 Breakdown -->
+  <div
+    class="mt-10 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm"
+  >
+    <div class="max-w-3xl mb-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-heading mb-2">
+        Why Is It Impossible to Build a Triple-Decker Here?
+      </h2>
+      <p class="text-sm sm:text-base text-muted">
+        Even though this lot is in Allston-Brighton&rsquo;s <strong
+          >Three-Family Residential (<code class="font-mono text-sm">3F-4000</code>)</strong
+        >
+        subdistrict and is flanked by two existing triple-deckers on identical 40&prime; &times; 100&prime; lots, Boston&rsquo;s
+        zoning rules create an inescapable <strong>Catch-22</strong>:
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-5 rounded-xl bg-rose-50/70 dark:bg-rose-950/25 border border-rose-200 dark:border-rose-900/60">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-rose-700 dark:text-rose-400 mb-1">
+          Trap #1 &bull; The &ldquo;3F-4000&rdquo; Lot Size Illusion
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">
+          4,000 sq. ft. Only Allows 2 Units&mdash;A 3rd Unit Requires 6,000 sq. ft.!
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          Despite being named <code class="font-mono">3F-4000</code>, the dimensional table specifies <strong
+            >4,000 sq. ft. minimum lot area for 1 or 2 units</strong
+          >, plus <strong>2,000 additional sq. ft. for each additional unit</strong> (requiring <strong
+            >6,000 sq. ft.</strong
+          >
+          for 3 units and <strong>8,000 sq. ft.</strong> for 4 units). Classic 4,000 sq. ft. triple-decker lots are banned
+          from having a 3-family home unless you drop down to 1 or 2 units.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-amber-50/70 dark:bg-amber-950/25 border border-amber-200 dark:border-amber-900/60">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 mb-1">
+          Trap #2 &bull; The Setback &amp; Neighbor Squeeze
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">
+          20&prime; Front + 30&prime; Rear + 15&prime; Side Setbacks Carve Up the Lot
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          Pre-zoning triple-deckers sit 10 feet from the street and 4 feet from side lot lines. Today&rsquo;s rules
+          demand a <strong>20-foot front yard</strong>, <strong>30-foot rear yard</strong>, <strong
+            >10 feet of separation from neighboring buildings</strong
+          >, and <strong>15 feet of combined side yards</strong>&mdash;shrinking a 40&prime; wide lot down to a
+          25&prime; wide buildable strip.
+        </p>
+      </div>
+
+      <div
+        class="p-5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/25 border border-indigo-200 dark:border-indigo-900/60"
+      >
+        <div class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 mb-1">
+          Trap #3 &bull; The 0.8 FAR &amp; Open Space Cap
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-2">
+          A 0.8 Floor Area Ratio Caps Total Space at 3,200 sq. ft.
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          Even inside the 25&prime; &times; 50&prime; setback box (1,250 sq. ft./floor), a 3-story building totals 3,750
+          sq. ft. (<strong>0.94 FAR</strong>)&mdash;violating the <strong>0.80 maximum FAR (3,200 sq. ft.)</strong> and the
+          <strong>1,950 sq. ft. Usable Open Space</strong> requirement (650 sq. ft. per unit outside the front yard).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  interface BuildingState {
+    hasBox: boolean;
+    /** Left coordinate in feet from center lot's left edge (0..40) */
+    xFt: number;
+    /** Top coordinate in feet from rear lot line (0..100) */
+    yFt: number;
+    /** Building width in feet */
+    widthFt: number;
+    /** Building depth in feet */
+    depthFt: number;
+    /** Number of stories (1..4) */
+    stories: number;
+    /** Number of dwelling units (1..4) */
+    units: number;
+    /** Roof style: 'flat' (11 ft/story) or 'pitched' (11 ft/story + 6 ft gable peak) */
+    roof: 'flat' | 'pitched';
+    /** Show setback guides on top-down plan */
+    showGuides: boolean;
+    /** Add a 20'x20' (400 sq ft) 2-car garage in the rear yard */
+    hasGarage: boolean;
+  }
+
+  interface RuleResult {
+    id: string;
+    name: string;
+    requirementText: string;
+    actualText: string;
+    passed: boolean;
+    category: 'building' | 'lot';
+    detail: string;
+  }
+
+  function initZoningVisualizer() {
+    const svg = document.querySelector<SVGSVGElement>('#lot-svg');
+    if (!svg || svg.dataset.initialized === 'true') return;
+    svg.dataset.initialized = 'true';
+
+    // Lot constants (from Allston-Brighton 3F-4000 table in .agents/zoning-visualizer/info.md)
+    const LOT_WIDTH_FT = 40;
+    const LOT_DEPTH_FT = 100;
+    const LOT_AREA_SQFT = LOT_WIDTH_FT * LOT_DEPTH_FT; // 4,000 sq ft
+    const NEIGHBOR_DIST_TO_LINE_FT = 4; // Existing triple-deckers are 4 ft from the shared side lot lines
+
+    // SVG Coordinate Constants (1 ft = 5 SVG units)
+    const PX_PER_FT = 5;
+    const LOT_X0 = 250; // Left edge of center lot in SVG
+    const LOT_Y0 = 35; // Rear lot line in SVG
+
+    // Initial state: Empty lot, 1 story / 1 unit, setback limits hidden by default
+    const state: BuildingState = {
+      hasBox: false,
+      xFt: 6,
+      yFt: 42,
+      widthFt: 28,
+      depthFt: 48,
+      stories: 1,
+      units: 1,
+      roof: 'flat',
+      showGuides: false,
+      hasGarage: false,
+    };
+
+    // DOM Elements
+    const userBuildingLayer = document.querySelector<SVGGElement>('#user-building-layer')!;
+    const userBuildingRect = document.querySelector<SVGRectElement>('#user-building-rect')!;
+    const ring2 = document.querySelector<SVGRectElement>('#user-story-ring-2')!;
+    const ring3 = document.querySelector<SVGRectElement>('#user-story-ring-3')!;
+    const labelBg = document.querySelector<SVGRectElement>('#user-label-bg')!;
+    const labelTitle = document.querySelector<SVGTextElement>('#user-label-title')!;
+    const labelArea = document.querySelector<SVGTextElement>('#user-label-area')!;
+    const labelStories = document.querySelector<SVGTextElement>('#user-label-stories')!;
+    const labelFar = document.querySelector<SVGTextElement>('#user-label-far')!;
+    const liveDimensionsGroup = document.querySelector<SVGGElement>('#live-dimensions-group')!;
+    const resizeHandlesGroup = document.querySelector<SVGGElement>('#resize-handles-group')!;
+    const setbackGuidesLayer = document.querySelector<SVGGElement>('#setback-guides-layer')!;
+    const garageGroup = document.querySelector<SVGGElement>('#garage-group')!;
+    const userElevationGroup = document.querySelector<SVGGElement>('#user-elevation-group')!;
+    const elevationSummary = document.getElementById('elevation-summary') as HTMLElement;
+
+    // Controls
+    const btnStoryMinus = document.getElementById('btn-story-minus') as HTMLButtonElement;
+    const btnStoryPlus = document.getElementById('btn-story-plus') as HTMLButtonElement;
+    const storyQuickBtns = document.querySelectorAll<HTMLButtonElement>('.story-quick-btn');
+    const selectUnits = document.getElementById('select-units') as HTMLSelectElement;
+    const selectRoof = document.getElementById('select-roof') as HTMLSelectElement;
+    const toggleGuides = document.getElementById('toggle-setback-guides') as HTMLInputElement;
+    const toggleGarage = document.getElementById('toggle-garage') as HTMLInputElement;
+
+    // Action Buttons
+    const presetNeighbor = document.getElementById('preset-neighbor') as HTMLButtonElement;
+    const presetClear = document.getElementById('preset-clear') as HTMLButtonElement;
+
+    // Metrics & Rules List
+    const footprintBadge = document.getElementById('footprint-badge') as HTMLElement;
+    const storiesDisplay = document.getElementById('stories-display') as HTMLElement;
+    const metricUnitArea = document.getElementById('metric-unit-area') as HTMLElement;
+    const metricUnitNote = document.getElementById('metric-unit-note') as HTMLElement;
+    const metricTotalArea = document.getElementById('metric-total-area') as HTMLElement;
+    const metricFarNote = document.getElementById('metric-far-note') as HTMLElement;
+    const metricOpenSpace = document.getElementById('metric-open-space') as HTMLElement;
+    const metricOpenNote = document.getElementById('metric-open-note') as HTMLElement;
+    const compliancePill = document.getElementById('compliance-pill') as HTMLElement;
+    const rulesList = document.getElementById('rules-list') as HTMLElement;
+
+    function getBuildingHeightFt(): number {
+      if (!state.hasBox) return 0;
+      const baseHeight = state.stories * 11;
+      return state.roof === 'pitched' ? baseHeight + 6 : baseHeight;
+    }
+
+    function evaluateZoningRules(): RuleResult[] {
+      const footprintSqFt = state.hasBox ? state.widthFt * state.depthFt : 0;
+      const totalFloorAreaSqFt = footprintSqFt * state.stories;
+      const far = totalFloorAreaSqFt / LOT_AREA_SQFT;
+      const heightFt = getBuildingHeightFt();
+
+      const frontYardFt = state.hasBox ? LOT_DEPTH_FT - (state.yFt + state.depthFt) : LOT_DEPTH_FT;
+      const rearYardFt = state.hasBox ? state.yFt : LOT_DEPTH_FT;
+      const leftSideFt = state.hasBox ? state.xFt : LOT_WIDTH_FT;
+      const rightSideFt = state.hasBox ? LOT_WIDTH_FT - (state.xFt + state.widthFt) : LOT_WIDTH_FT;
+      const aggregateSideFt = leftSideFt + rightSideFt;
+      const distLeftNeighborFt = leftSideFt + NEIGHBOR_DIST_TO_LINE_FT;
+      const distRightNeighborFt = rightSideFt + NEIGHBOR_DIST_TO_LINE_FT;
+
+      // Required Lot Area: 4,000 sq ft for 1 or 2 units, +2,000 sq ft for each additional unit
+      // 1 or 2 units -> 4,000; 3 units -> 6,000; 4 units -> 8,000
+      const requiredLotAreaSqFt = state.units <= 2 ? 4000 : 4000 + (state.units - 2) * 2000;
+
+      // Usable Open Space: 650 sq ft per dwelling unit
+      // Per Boston Zoning Code, Usable Open Space excludes the building footprint, required front yard (20' x 40' = 800 sq ft), and accessory buildings
+      const requiredFrontYardArea = LOT_WIDTH_FT * 20; // 800 sq ft
+      const garageArea = state.hasGarage ? 400 : 0;
+      const footprintBehindFrontYard = state.hasBox
+        ? state.widthFt * Math.max(0, Math.min(state.yFt + state.depthFt, LOT_DEPTH_FT - 20) - state.yFt)
+        : 0;
+      const usableOpenSpaceSqFt = Math.max(
+        0,
+        LOT_AREA_SQFT - requiredFrontYardArea - footprintBehindFrontYard - garageArea
+      );
+      const requiredOpenSpaceSqFt = state.units * 650;
+
+      // Rear Yard Occupancy by Accessory Buildings (Max 25%)
+      // Required Rear Yard is 30' deep x 40' wide = 1,200 sq ft
+      const rearYardAreaSqFt = LOT_WIDTH_FT * 30; // 1,200 sq ft
+      const rearYardAccessoryPercent = Math.round((garageArea / rearYardAreaSqFt) * 100);
+
+      // Side yard check: >= 5' from side lot line, >= 10' from abutting structure, >= 15' aggregate
+      const sideMinLinePass = !state.hasBox || (leftSideFt >= 5 && rightSideFt >= 5);
+      const sideNeighborPass = !state.hasBox || (distLeftNeighborFt >= 10 && distRightNeighborFt >= 10);
+      const sideAggregatePass = !state.hasBox || aggregateSideFt >= 15;
+      const sideYardPass = sideMinLinePass && sideNeighborPass && sideAggregatePass;
+
+      return [
+        {
+          id: 'front-yard',
+          name: 'Front Yard Minimum Depth',
+          requirementText: 'Min 20 ft',
+          actualText: state.hasBox ? `${frontYardFt} ft` : '—',
+          passed: !state.hasBox || frontYardFt >= 20,
+          category: 'building',
+          detail:
+            !state.hasBox || frontYardFt >= 20
+              ? 'Compliant with 20 ft minimum front yard setback (neighbors are at 10 ft).'
+              : `Violates 20 ft minimum front setback by ${20 - frontYardFt} ft (even though 1910 neighbors sit at 10 ft!).`,
+        },
+        {
+          id: 'side-yard',
+          name: 'Side Yard Minimum Width',
+          requirementText: '≥5′ line, ≥10′ neighbor, ≥15′ total',
+          actualText: state.hasBox
+            ? `L: ${leftSideFt}′ (${distLeftNeighborFt}′ nbr) | R: ${rightSideFt}′ (${distRightNeighborFt}′ nbr) | Sum: ${aggregateSideFt}′`
+            : '—',
+          passed: sideYardPass,
+          category: 'building',
+          detail: sideYardPass
+            ? 'Meets 5 ft lot line, 10 ft abutting building separation, and 15 ft aggregate width.'
+            : !sideMinLinePass
+              ? `Too close to side lot line (min 5 ft required; currently ${Math.min(leftSideFt, rightSideFt)} ft).`
+              : !sideNeighborPass
+                ? `Within 10 ft of an existing triple-decker on an abutting lot (currently ${Math.min(distLeftNeighborFt, distRightNeighborFt)} ft away).`
+                : `Combined side yards (${aggregateSideFt} ft) are less than the required 15 ft aggregate minimum.`,
+        },
+        {
+          id: 'rear-yard',
+          name: 'Rear Yard Minimum Depth',
+          requirementText: 'Min 30 ft',
+          actualText: state.hasBox ? `${rearYardFt} ft` : '—',
+          passed: !state.hasBox || rearYardFt >= 30,
+          category: 'building',
+          detail:
+            !state.hasBox || rearYardFt >= 30
+              ? 'Meets the 30 ft minimum rear yard depth.'
+              : `Building extends ${30 - rearYardFt} ft into the mandatory 30 ft rear yard setback.`,
+        },
+        {
+          id: 'far',
+          name: 'Floor Area Ratio (FAR) Maximum',
+          requirementText: 'Max 0.80 (3,200 sf)',
+          actualText: state.hasBox ? `${far.toFixed(2)} (${totalFloorAreaSqFt.toLocaleString()} sf)` : '0.00 (0 sf)',
+          passed: !state.hasBox || far <= 0.8 + 1e-6,
+          category: 'building',
+          detail:
+            !state.hasBox || far <= 0.8 + 1e-6
+              ? `Total floor area (${totalFloorAreaSqFt.toLocaleString()} sq. ft.) is within 0.80 × 4,000 = 3,200 sq. ft.`
+              : `Exceeds 0.80 FAR cap by ${(totalFloorAreaSqFt - 3200).toLocaleString()} sq. ft. (Neighbors are 1.01 FAR!).`,
+        },
+        {
+          id: 'height-stories',
+          name: 'Building Height Maximum (Stories)',
+          requirementText: 'Max 3 Stories',
+          actualText: state.hasBox ? `${state.stories} ${state.stories === 1 ? 'Story' : 'Stories'}` : '—',
+          passed: !state.hasBox || state.stories <= 3,
+          category: 'building',
+          detail:
+            !state.hasBox || state.stories <= 3
+              ? 'Within the 3-story maximum height limit.'
+              : 'Exceeds the 3-story maximum height limit in a 3F-4000 subdistrict.',
+        },
+        {
+          id: 'height-feet',
+          name: 'Building Height Maximum (Feet)',
+          requirementText: 'Max 35 ft',
+          actualText: state.hasBox ? `${heightFt} ft` : '—',
+          passed: !state.hasBox || heightFt <= 35,
+          category: 'building',
+          detail:
+            !state.hasBox || heightFt <= 35
+              ? `Total height (${heightFt} ft) is under the 35 ft ceiling.`
+              : `At ${heightFt} ft, the roof exceeds the 35 ft height limit by ${heightFt - 35} ft!`,
+        },
+        {
+          id: 'open-space',
+          name: 'Usable Open Space Minimum',
+          requirementText: `650 sf/unit (${requiredOpenSpaceSqFt.toLocaleString()} sf)`,
+          actualText: `${usableOpenSpaceSqFt.toLocaleString()} sf (${Math.round(usableOpenSpaceSqFt / state.units)} sf/u)`,
+          passed: usableOpenSpaceSqFt >= requiredOpenSpaceSqFt,
+          category: 'building',
+          detail:
+            usableOpenSpaceSqFt >= requiredOpenSpaceSqFt
+              ? `Provides ${usableOpenSpaceSqFt.toLocaleString()} sq. ft. of usable open space outside the front yard.`
+              : `Short by ${(requiredOpenSpaceSqFt - usableOpenSpaceSqFt).toLocaleString()} sq. ft. (Front yard setback cannot count as usable open space).`,
+        },
+        {
+          id: 'rear-occupancy',
+          name: 'Rear Yard Max Accessory Occupancy',
+          requirementText: 'Max 25%',
+          actualText: `${rearYardAccessoryPercent}% (${garageArea} sf)`,
+          passed: rearYardAccessoryPercent <= 25,
+          category: 'building',
+          detail:
+            rearYardAccessoryPercent <= 25
+              ? 'Accessory structures occupy ≤ 25% of the required rear yard.'
+              : 'A standard 20′×20′ 2-car garage (400 sq. ft.) takes up 33% of the 1,200 sq. ft. rear yard (max 25%)!',
+        },
+        {
+          id: 'lot-area',
+          name: 'Minimum Lot Area (Base + Per Add’l Unit)',
+          requirementText: `${requiredLotAreaSqFt.toLocaleString()} sf (${state.units} ${state.units === 1 ? 'unit' : 'units'})`,
+          actualText: `${LOT_AREA_SQFT.toLocaleString()} sf`,
+          passed: LOT_AREA_SQFT >= requiredLotAreaSqFt,
+          category: 'lot',
+          detail:
+            LOT_AREA_SQFT >= requiredLotAreaSqFt
+              ? `4,000 sq. ft. meets the minimum lot area for ${state.units} ${state.units === 1 ? 'unit' : 'units'} (4,000 sq. ft. base for 1–2 units).`
+              : `4,000 sq. ft. only permits 1–2 units! ${state.units} units require ${requiredLotAreaSqFt.toLocaleString()} sq. ft. (4,000 base + 2,000 per unit above 2).`,
+        },
+      ];
+    }
+
+    function renderDimensionArrows() {
+      if (!state.hasBox) {
+        liveDimensionsGroup.innerHTML = '';
+        return;
+      }
+
+      const xPx = LOT_X0 + state.xFt * PX_PER_FT;
+      const yPx = LOT_Y0 + state.yFt * PX_PER_FT;
+      const wPx = state.widthFt * PX_PER_FT;
+      const hPx = state.depthFt * PX_PER_FT;
+
+      const frontYardFt = LOT_DEPTH_FT - (state.yFt + state.depthFt);
+      const rearYardFt = state.yFt;
+      const leftSideFt = state.xFt;
+      const rightSideFt = LOT_WIDTH_FT - (state.xFt + state.widthFt);
+      const aggregateSideFt = leftSideFt + rightSideFt;
+      const distLeftNeighborFt = leftSideFt + NEIGHBOR_DIST_TO_LINE_FT;
+      const distRightNeighborFt = rightSideFt + NEIGHBOR_DIST_TO_LINE_FT;
+
+      const frontOk = frontYardFt >= 20;
+      const rearOk = rearYardFt >= 30;
+      const leftOk = leftSideFt >= 5 && distLeftNeighborFt >= 10 && aggregateSideFt >= 15;
+      const rightOk = rightSideFt >= 5 && distRightNeighborFt >= 10 && aggregateSideFt >= 15;
+
+      const frontColor = frontOk ? '#059669' : '#dc2626';
+      const rearColor = rearOk ? '#059669' : '#dc2626';
+      const leftColor = leftOk ? '#059669' : '#dc2626';
+      const rightColor = rightOk ? '#059669' : '#dc2626';
+
+      const midX = xPx + wPx / 2;
+      const midY = yPx + hPx / 2;
+
+      liveDimensionsGroup.innerHTML = `
+        <!-- Rear Yard Dimension Line -->
+        <line x1="${midX}" y1="${LOT_Y0}" x2="${midX}" y2="${yPx}" stroke="${rearColor}" stroke-width="2" stroke-dasharray="3 2" />
+        <rect x="${midX - 42}" y="${(LOT_Y0 + yPx) / 2 - 9}" width="84" height="17" rx="4" fill="${rearColor}" />
+        <text x="${midX}" y="${(LOT_Y0 + yPx) / 2 + 3}" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="bold">
+          Rear: ${rearYardFt}′ (min 30′)
+        </text>
+
+        <!-- Front Yard Dimension Line -->
+        <line x1="${midX}" y1="${yPx + hPx}" x2="${midX}" y2="${LOT_Y0 + 500}" stroke="${frontColor}" stroke-width="2" stroke-dasharray="3 2" />
+        <rect x="${midX - 44}" y="${(yPx + hPx + LOT_Y0 + 500) / 2 - 9}" width="88" height="17" rx="4" fill="${frontColor}" />
+        <text x="${midX}" y="${(yPx + hPx + LOT_Y0 + 500) / 2 + 3}" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="bold">
+          Front: ${frontYardFt}′ (min 20′)
+        </text>
+
+        <!-- Left Side Yard Dimension -->
+        <line x1="${LOT_X0}" y1="${midY - 12}" x2="${xPx}" y2="${midY - 12}" stroke="${leftColor}" stroke-width="2" />
+        <rect x="${LOT_X0 + 2}" y="${midY - 32}" width="64" height="16" rx="3" fill="${leftColor}" />
+        <text x="${LOT_X0 + 34}" y="${midY - 21}" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold">
+          L: ${leftSideFt}′ (${distLeftNeighborFt}′ nbr)
+        </text>
+
+        <!-- Right Side Yard Dimension -->
+        <line x1="${xPx + wPx}" y1="${midY + 12}" x2="${LOT_X0 + 200}" y2="${midY + 12}" stroke="${rightColor}" stroke-width="2" />
+        <rect x="${LOT_X0 + 200 - 66}" y="${midY + 16}" width="64" height="16" rx="3" fill="${rightColor}" />
+        <text x="${LOT_X0 + 200 - 34}" y="${midY + 27}" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="bold">
+          R: ${rightSideFt}′ (${distRightNeighborFt}′ nbr)
+        </text>
+      `;
+    }
+
+    function renderElevation(buildingRulesPassed: boolean) {
+      const heightFt = getBuildingHeightFt();
+      if (!state.hasBox) {
+        userElevationGroup.innerHTML = '';
+        elevationSummary.textContent = 'Empty Lot';
+        return;
+      }
+
+      const xPx = LOT_X0 + state.xFt * PX_PER_FT;
+      const wPx = state.widthFt * PX_PER_FT;
+      const groundY = 210;
+      const pxPerHeightFt = 3.5;
+      const bodyHeightFt = state.stories * 11;
+      const bodyHeightPx = bodyHeightFt * pxPerHeightFt;
+      const bodyTopY = groundY - bodyHeightPx;
+
+      const fillClass = buildingRulesPassed ? '#10b981' : '#ef4444';
+      const strokeColor = buildingRulesPassed ? '#047857' : '#991b1b';
+
+      let floorsSvg = '';
+      for (let s = 1; s <= state.stories; s++) {
+        const floorTopY = groundY - s * 11 * pxPerHeightFt;
+        if (s < state.stories) {
+          floorsSvg += `<line x1="${xPx}" y1="${floorTopY}" x2="${xPx + wPx}" y2="${floorTopY}" stroke="${strokeColor}" stroke-width="1.5" />`;
+        }
+        const winY = floorTopY + 8;
+        const winH = 18;
+        const numWins = Math.max(1, Math.min(4, Math.floor(state.widthFt / 7)));
+        const spacing = wPx / (numWins + 1);
+        for (let w = 1; w <= numWins; w++) {
+          const winX = xPx + w * spacing - 7;
+          floorsSvg += `<rect x="${winX}" y="${winY}" width="14" height="${winH}" rx="1.5" fill="#e0f2fe" stroke="${strokeColor}" stroke-width="1" />`;
+        }
+      }
+
+      let roofSvg = '';
+      let topLabelY = bodyTopY - 8;
+      if (state.roof === 'pitched') {
+        const peakY = bodyTopY - 6 * pxPerHeightFt;
+        topLabelY = peakY - 6;
+        roofSvg = `<polygon points="${xPx - 3},${bodyTopY} ${xPx + wPx / 2},${peakY} ${xPx + wPx + 3},${bodyTopY}" fill="${strokeColor}" />`;
+      } else {
+        roofSvg = `<rect x="${xPx - 3}" y="${bodyTopY - 5}" width="${wPx + 6}" height="6" rx="1" fill="${strokeColor}" />`;
+      }
+
+      userElevationGroup.innerHTML = `
+        <rect x="${xPx}" y="${bodyTopY}" width="${wPx}" height="${bodyHeightPx}" fill="${fillClass}" fill-opacity="0.82" stroke="${strokeColor}" stroke-width="2" />
+        ${floorsSvg}
+        ${roofSvg}
+        <text x="${xPx + wPx / 2}" y="${Math.max(18, topLabelY)}" text-anchor="middle" fill="${strokeColor}" font-size="10.5" font-weight="bold">
+          Your Design: ${state.stories} Fl (${heightFt}′)
+        </text>
+      `;
+
+      elevationSummary.textContent = `${state.stories} ${state.stories === 1 ? 'Story' : 'Stories'} • ${heightFt} ft tall • ${state.units} ${state.units === 1 ? 'Unit' : 'Units'}`;
+    }
+
+    function updateUI() {
+      // Visibility of guides & garage
+      setbackGuidesLayer.classList.toggle('hidden', !state.showGuides);
+      garageGroup.classList.toggle('hidden', !state.hasGarage);
+
+      const rules = evaluateZoningRules();
+      const failedRules = rules.filter((r) => !r.passed);
+      const buildingRules = rules.filter((r) => r.category === 'building');
+      const failedBuildingRules = buildingRules.filter((r) => !r.passed);
+      const buildingRulesAllPass = state.hasBox && failedBuildingRules.length === 0;
+
+      // Update Top-Down Building Box SVG
+      if (!state.hasBox) {
+        userBuildingLayer.classList.add('hidden');
+      } else {
+        userBuildingLayer.classList.remove('hidden');
+
+        const xPx = LOT_X0 + state.xFt * PX_PER_FT;
+        const yPx = LOT_Y0 + state.yFt * PX_PER_FT;
+        const wPx = state.widthFt * PX_PER_FT;
+        const hPx = state.depthFt * PX_PER_FT;
+
+        userBuildingRect.setAttribute('x', String(xPx));
+        userBuildingRect.setAttribute('y', String(yPx));
+        userBuildingRect.setAttribute('width', String(wPx));
+        userBuildingRect.setAttribute('height', String(hPx));
+
+        // Color building box based on whether all rules pass or if any rule fails
+        userBuildingRect.setAttribute(
+          'class',
+          failedRules.length === 0
+            ? 'fill-emerald-600/85 stroke-emerald-950 dark:stroke-white cursor-move'
+            : buildingRulesAllPass
+              ? 'fill-amber-500/85 stroke-amber-950 dark:stroke-white cursor-move'
+              : 'fill-rose-600/80 stroke-rose-950 dark:stroke-white cursor-move'
+        );
+
+        // Story rings
+        if (state.stories >= 2 && wPx > 16 && hPx > 16) {
+          ring2.classList.remove('hidden');
+          ring2.setAttribute('x', String(xPx + 4));
+          ring2.setAttribute('y', String(yPx + 4));
+          ring2.setAttribute('width', String(wPx - 8));
+          ring2.setAttribute('height', String(hPx - 8));
+        } else {
+          ring2.classList.add('hidden');
+        }
+
+        if (state.stories >= 3 && wPx > 28 && hPx > 28) {
+          ring3.classList.remove('hidden');
+          ring3.setAttribute('x', String(xPx + 8));
+          ring3.setAttribute('y', String(yPx + 8));
+          ring3.setAttribute('width', String(wPx - 16));
+          ring3.setAttribute('height', String(hPx - 16));
+        } else {
+          ring3.classList.add('hidden');
+        }
+
+        // Center label inside building
+        const cx = xPx + wPx / 2;
+        const cy = yPx + hPx / 2;
+        const footprintSqFt = state.widthFt * state.depthFt;
+        const totalSqFt = footprintSqFt * state.stories;
+        const far = totalSqFt / LOT_AREA_SQFT;
+
+        labelBg.setAttribute('x', String(cx - 58));
+        labelBg.setAttribute('y', String(cy - 34));
+        labelTitle.setAttribute('x', String(cx));
+        labelTitle.setAttribute('y', String(cy - 17));
+        labelTitle.textContent = `${state.widthFt}′ × ${state.depthFt}′`;
+
+        labelArea.setAttribute('x', String(cx));
+        labelArea.setAttribute('y', String(cy - 2));
+        labelArea.textContent = `${footprintSqFt.toLocaleString()} sq. ft. / fl`;
+
+        labelStories.setAttribute('x', String(cx));
+        labelStories.setAttribute('y', String(cy + 13));
+        labelStories.textContent = `${state.stories} Fl (${totalSqFt.toLocaleString()} sf)`;
+
+        labelFar.setAttribute('x', String(cx));
+        labelFar.setAttribute('y', String(cy + 26));
+        labelFar.textContent = `FAR: ${far.toFixed(2)} (Max 0.80)`;
+
+        // Update 8 resize handles
+        const setHandlePos = (name: string, hx: number, hy: number) => {
+          const el = resizeHandlesGroup.querySelector(`[data-handle="${name}"]`);
+          if (!el) return;
+          if (el.tagName.toLowerCase() === 'circle') {
+            el.setAttribute('cx', String(hx));
+            el.setAttribute('cy', String(hy));
+          } else {
+            el.setAttribute('x', String(hx));
+            el.setAttribute('y', String(hy));
+          }
+        };
+
+        setHandlePos('n', cx - 10, yPx - 5);
+        setHandlePos('s', cx - 10, yPx + hPx - 5);
+        setHandlePos('w', xPx - 5, cy - 10);
+        setHandlePos('e', xPx + wPx - 5, cy - 10);
+        setHandlePos('nw', xPx, yPx);
+        setHandlePos('ne', xPx + wPx, yPx);
+        setHandlePos('sw', xPx, yPx + hPx);
+        setHandlePos('se', xPx + wPx, yPx + hPx);
+      }
+
+      renderDimensionArrows();
+      renderElevation(failedRules.length === 0);
+
+      // Update Controls & Metric Badges
+      const footprintSqFt = state.hasBox ? state.widthFt * state.depthFt : 0;
+      const totalSqFt = footprintSqFt * state.stories;
+      const far = totalSqFt / LOT_AREA_SQFT;
+
+      footprintBadge.textContent = state.hasBox
+        ? `${state.widthFt}′ × ${state.depthFt}′ (${footprintSqFt.toLocaleString()} sf)`
+        : 'Empty Lot';
+
+      storiesDisplay.textContent =
+        state.stories === 3
+          ? '3 Stories (Triple-Decker)'
+          : state.stories > 3
+            ? `${state.stories} Stories (Over Limit!)`
+            : `${state.stories} ${state.stories === 1 ? 'Story' : 'Stories'}`;
+
+      storyQuickBtns.forEach((btn) => {
+        const s = Number(btn.dataset.setStories);
+        if (s === state.stories) {
+          btn.className =
+            'story-quick-btn col-span-1 py-2 rounded-lg text-xs font-extrabold border bg-indigo-600 text-white border-indigo-600 cursor-pointer';
+        } else {
+          btn.className =
+            'story-quick-btn col-span-1 py-2 rounded-lg text-xs font-bold border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-50 cursor-pointer';
+        }
+      });
+
+      const sqFtPerUnit = state.hasBox ? Math.round(totalSqFt / state.units) : 0;
+      metricUnitArea.textContent = state.hasBox ? `${sqFtPerUnit.toLocaleString()} sf` : '0 sf';
+      if (!state.hasBox) {
+        metricUnitNote.textContent = 'Draw a building';
+        metricUnitNote.className = 'text-[10px] text-slate-500 font-semibold';
+      } else if (sqFtPerUnit >= 1000) {
+        metricUnitNote.textContent = 'Full Family Size';
+        metricUnitNote.className = 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold';
+      } else {
+        metricUnitNote.textContent = `${Math.round((sqFtPerUnit / 1344) * 100)}% of Neighbor Size`;
+        metricUnitNote.className = 'text-[10px] text-amber-600 dark:text-amber-400 font-semibold';
+      }
+
+      metricTotalArea.textContent = `${totalSqFt.toLocaleString()} sf`;
+      const farRule = rules.find((r) => r.id === 'far')!;
+      metricFarNote.textContent = `FAR ${far.toFixed(2)} (Max 0.80)`;
+      metricFarNote.className = farRule.passed
+        ? 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold'
+        : 'text-[10px] text-rose-600 dark:text-rose-400 font-semibold';
+
+      const openRule = rules.find((r) => r.id === 'open-space')!;
+      metricOpenSpace.textContent = openRule.actualText.split(' (')[0];
+      metricOpenNote.textContent = openRule.passed
+        ? `Meets ${state.units * 650} sf min`
+        : `Needs ${state.units * 650} sf`;
+      metricOpenNote.className = openRule.passed
+        ? 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold'
+        : 'text-[10px] text-rose-600 dark:text-rose-400 font-semibold';
+
+      // Render Zoning Compliance List
+      compliancePill.textContent = `${failedRules.length} ${failedRules.length === 1 ? 'Violation' : 'Violations'}`;
+      compliancePill.className =
+        failedRules.length === 0
+          ? 'px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+          : 'px-2.5 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+
+      rulesList.innerHTML = rules
+        .map(
+          (rule) => `
+        <div class="px-4 py-3 flex items-start justify-between gap-3 ${
+          rule.passed ? 'bg-white dark:bg-slate-900' : 'bg-rose-50/70 dark:bg-rose-950/30'
+        }">
+          <div class="space-y-0.5 pr-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-extrabold ${
+                rule.passed
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
+                  : 'bg-rose-600 text-white'
+              }">
+                ${rule.passed ? '✓' : '✕'}
+              </span>
+              <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">
+                ${rule.name}
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 pl-6 leading-snug">
+              ${rule.detail}
+            </p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-xs font-extrabold ${
+              rule.passed ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'
+            }">
+              ${rule.actualText}
+            </div>
+            <div class="text-[10px] font-medium text-slate-500 dark:text-slate-400">
+              Req: ${rule.requirementText}
+            </div>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+    }
+
+    // Pointer Interaction on the SVG Canvas (Drawing, Moving, and Resizing)
+    type DragMode = 'none' | 'draw' | 'move' | 'n' | 's' | 'w' | 'e' | 'nw' | 'ne' | 'sw' | 'se';
+    let dragMode: DragMode = 'none';
+    let startPtFt = { x: 0, y: 0 };
+    let initialBox = { xFt: 0, yFt: 0, widthFt: 0, depthFt: 0 };
+
+    function clientToLotFt(clientX: number, clientY: number): { x: number; y: number } {
+      const rect = svg!.getBoundingClientRect();
+      const svgX = ((clientX - rect.left) / rect.width) * 700;
+      const svgY = ((clientY - rect.top) / rect.height) * 615;
+      const xFt = Math.round((svgX - LOT_X0) / PX_PER_FT);
+      const yFt = Math.round((svgY - LOT_Y0) / PX_PER_FT);
+      return {
+        x: Math.max(0, Math.min(LOT_WIDTH_FT, xFt)),
+        y: Math.max(0, Math.min(LOT_DEPTH_FT, yFt)),
+      };
+    }
+
+    svg.addEventListener('pointerdown', (e: PointerEvent) => {
+      const target = e.target as Element;
+      const handleAttr = target.getAttribute('data-handle') as DragMode | null;
+
+      const pt = clientToLotFt(e.clientX, e.clientY);
+
+      if (handleAttr && state.hasBox) {
+        dragMode = handleAttr;
+      } else if (state.hasBox && target.id === 'user-building-rect') {
+        dragMode = 'move';
+      } else {
+        // Check if click is inside the center lot (X: 250..450, Y: 35..535)
+        const rect = svg.getBoundingClientRect();
+        const svgX = ((e.clientX - rect.left) / rect.width) * 700;
+        const svgY = ((e.clientY - rect.top) / rect.height) * 615;
+        if (svgX < LOT_X0 || svgX > LOT_X0 + 200 || svgY < LOT_Y0 || svgY > LOT_Y0 + 500) {
+          return;
+        }
+        dragMode = 'draw';
+        state.hasBox = true;
+        state.xFt = Math.min(LOT_WIDTH_FT - 4, pt.x);
+        state.yFt = Math.min(LOT_DEPTH_FT - 4, pt.y);
+        state.widthFt = 4;
+        state.depthFt = 4;
+      }
+
+      startPtFt = pt;
+      initialBox = {
+        xFt: state.xFt,
+        yFt: state.yFt,
+        widthFt: state.widthFt,
+        depthFt: state.depthFt,
+      };
+      svg.setPointerCapture(e.pointerId);
+      updateUI();
+    });
+
+    svg.addEventListener('pointermove', (e: PointerEvent) => {
+      if (dragMode === 'none') return;
+      const pt = clientToLotFt(e.clientX, e.clientY);
+      const dx = pt.x - startPtFt.x;
+      const dy = pt.y - startPtFt.y;
+      const MIN_SIZE = 6;
+
+      if (dragMode === 'draw') {
+        const x1 = Math.max(0, Math.min(startPtFt.x, pt.x));
+        const x2 = Math.min(LOT_WIDTH_FT, Math.max(startPtFt.x, pt.x));
+        const y1 = Math.max(0, Math.min(startPtFt.y, pt.y));
+        const y2 = Math.min(LOT_DEPTH_FT, Math.max(startPtFt.y, pt.y));
+        state.xFt = x1;
+        state.yFt = y1;
+        state.widthFt = Math.max(MIN_SIZE, Math.min(LOT_WIDTH_FT - x1, x2 - x1));
+        state.depthFt = Math.max(MIN_SIZE, Math.min(LOT_DEPTH_FT - y1, y2 - y1));
+      } else if (dragMode === 'move') {
+        state.xFt = Math.max(0, Math.min(LOT_WIDTH_FT - initialBox.widthFt, initialBox.xFt + dx));
+        state.yFt = Math.max(0, Math.min(LOT_DEPTH_FT - initialBox.depthFt, initialBox.yFt + dy));
+      } else {
+        let left = initialBox.xFt;
+        let right = initialBox.xFt + initialBox.widthFt;
+        let top = initialBox.yFt;
+        let bottom = initialBox.yFt + initialBox.depthFt;
+
+        if (dragMode.includes('w')) {
+          left = Math.max(0, Math.min(right - MIN_SIZE, initialBox.xFt + dx));
+        }
+        if (dragMode.includes('e')) {
+          right = Math.min(LOT_WIDTH_FT, Math.max(left + MIN_SIZE, initialBox.xFt + initialBox.widthFt + dx));
+        }
+        if (dragMode.includes('n')) {
+          top = Math.max(0, Math.min(bottom - MIN_SIZE, initialBox.yFt + dy));
+        }
+        if (dragMode.includes('s')) {
+          bottom = Math.min(LOT_DEPTH_FT, Math.max(top + MIN_SIZE, initialBox.yFt + initialBox.depthFt + dy));
+        }
+
+        state.xFt = left;
+        state.yFt = top;
+        state.widthFt = right - left;
+        state.depthFt = bottom - top;
+      }
+
+      updateUI();
+    });
+
+    const endDrag = (e: PointerEvent) => {
+      if (dragMode !== 'none') {
+        dragMode = 'none';
+        if (svg.hasPointerCapture(e.pointerId)) {
+          svg.releasePointerCapture(e.pointerId);
+        }
+      }
+    };
+
+    svg.addEventListener('pointerup', endDrag);
+    svg.addEventListener('pointercancel', endDrag);
+
+    // Control Event Listeners
+    btnStoryMinus.addEventListener('click', () => {
+      state.stories = Math.max(1, state.stories - 1);
+      state.units = state.stories;
+      selectUnits.value = String(state.units);
+      updateUI();
+    });
+
+    btnStoryPlus.addEventListener('click', () => {
+      state.stories = Math.min(4, state.stories + 1);
+      state.units = state.stories;
+      selectUnits.value = String(state.units);
+      updateUI();
+    });
+
+    storyQuickBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.stories = Number(btn.dataset.setStories) || 1;
+        state.units = state.stories;
+        selectUnits.value = String(state.units);
+        updateUI();
+      });
+    });
+
+    selectUnits.addEventListener('change', () => {
+      state.units = Number(selectUnits.value) || 1;
+      updateUI();
+    });
+
+    selectRoof.addEventListener('change', () => {
+      state.roof = selectRoof.value === 'pitched' ? 'pitched' : 'flat';
+      updateUI();
+    });
+
+    toggleGuides.addEventListener('change', () => {
+      state.showGuides = toggleGuides.checked;
+      updateUI();
+    });
+
+    toggleGarage.addEventListener('change', () => {
+      state.hasGarage = toggleGarage.checked;
+      updateUI();
+    });
+
+    // Presets
+    presetNeighbor.addEventListener('click', () => {
+      state.hasBox = true;
+      state.xFt = 6;
+      state.yFt = 42;
+      state.widthFt = 28;
+      state.depthFt = 48;
+      state.stories = 3;
+      state.units = 3;
+      state.roof = 'flat';
+      selectUnits.value = '3';
+      selectRoof.value = 'flat';
+      updateUI();
+    });
+
+    presetClear.addEventListener('click', () => {
+      state.hasBox = false;
+      state.stories = 1;
+      state.units = 1;
+      selectUnits.value = '1';
+      updateUI();
+    });
+
+    updateUI();
+  }
+
+  // Initialize on both standard load and Astro View Transitions navigation
+  initZoningVisualizer();
+  document.addEventListener('astro:page-load', initZoningVisualizer);
+</script>
