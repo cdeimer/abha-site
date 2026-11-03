@@ -11,6 +11,10 @@ tags:
 
 # Tour Notes
 
+Building on the success of our August walking tour, we decided to take another walk around Allston to see some buildings that are currently under construction. About 25 people, including group regulars and new faces, joined us on a sunny Halloween afternoon. See below for some notes and photos from the walk! If you missed it, sign up for our newsletter to be notified of future events.
+
+![Group photo](./Group.jpg)
+
 ### 1270 Commonwealth Avenue ("Arborline")
 
 - 5 stories of wood-frame construction over a 1-story concrete podium
@@ -35,7 +39,7 @@ tags:
 - Going to add street trees
 - On the site of the former Allston Post Office
 
-![Ivy](./Ivy.jpg)
+![Ivy](./Ivy2.jpg)
 
 ### 6 Pratt Street ("Allston Green" Building C)
 
