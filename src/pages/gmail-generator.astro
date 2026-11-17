@@ -1,0 +1,363 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { Icon } from 'astro-icon/components';
+import { EMAIL_CAMPAIGNS, type EmailCampaign } from '~/data/emailCampaigns';
+
+const metadata = {
+  title: 'Gmail Generator',
+  description: 'Send an email for active Allston-Brighton Housing Action campaigns.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+function parseDeadlineMs(deadline?: string): number {
+  if (!deadline) return Number.POSITIVE_INFINITY;
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(deadline.trim()) ? `${deadline.trim()}T23:59:59` : deadline.trim();
+  const parsed = Date.parse(normalized);
+  return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;
+}
+
+function formatDeadlineDisplay(deadline?: string): string | null {
+  if (!deadline) return null;
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(deadline.trim());
+  const normalized = isDateOnly ? `${deadline.trim()}T12:00:00` : deadline.trim();
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return deadline;
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+// Sort campaigns with the soonest deadline first; campaigns without a deadline appear after
+const sortedCampaigns: EmailCampaign[] = [...EMAIL_CAMPAIGNS].sort(
+  (a, b) => parseDeadlineMs(a.deadline) - parseDeadlineMs(b.deadline)
+);
+---
+
+<Layout metadata={metadata}>
+  <section class="relative py-10 md:py-16 max-w-4xl mx-auto px-4 sm:px-6">
+    <!-- Page Header -->
+    <div class="text-center mb-10 md:mb-12">
+      <p class="text-xs font-bold uppercase tracking-widest text-primary dark:text-blue-400 mb-2">Take Action</p>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-heading mb-4">
+        Active Email <span class="text-accent dark:text-purple-400">Campaigns</span>
+      </h1>
+      <p class="text-base sm:text-lg text-muted max-w-2xl mx-auto leading-relaxed">
+        Choose an active campaign below, write a message in your own words, and open a pre-addressed draft directly in
+        Gmail.
+      </p>
+    </div>
+
+    <!-- Campaigns List -->
+    <div id="campaigns-container" class="space-y-8">
+      {
+        sortedCampaigns.map((campaign) => {
+          const toAddressString = campaign.recipients.join(', ');
+          const ccAddressString = campaign.cc && campaign.cc.length > 0 ? campaign.cc.join(', ') : '';
+          const formattedDeadline = formatDeadlineDisplay(campaign.deadline);
+
+          const initialGmailParams = new URLSearchParams({
+            view: 'cm',
+            fs: '1',
+            to: campaign.recipients.join(','),
+            su: campaign.subject,
+            body: '',
+          });
+          if (campaign.cc && campaign.cc.length > 0) {
+            initialGmailParams.set('cc', campaign.cc.join(','));
+          }
+          const initialGmailHref = `https://mail.google.com/mail/?${initialGmailParams.toString()}`;
+
+          const initialMailtoParams = new URLSearchParams();
+          if (campaign.cc && campaign.cc.length > 0) {
+            initialMailtoParams.set('cc', campaign.cc.join(','));
+          }
+          initialMailtoParams.set('subject', campaign.subject);
+          initialMailtoParams.set('body', '');
+          const initialMailtoHref = `mailto:${campaign.recipients.join(',')}?${initialMailtoParams.toString().replace(/\+/g, '%20')}`;
+
+          return (
+            <article
+              data-campaign-card
+              data-campaign-id={campaign.id}
+              data-deadline={campaign.deadline || ''}
+              data-to={campaign.recipients.join(',')}
+              data-cc={campaign.cc ? campaign.cc.join(',') : ''}
+              class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md overflow-hidden"
+            >
+              {/* Campaign Header & Description */}
+              <div class="p-6 sm:p-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">{campaign.title}</h2>
+                  {formattedDeadline && (
+                    <span
+                      data-deadline-badge
+                      class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-3 py-1 text-xs font-bold text-amber-900 dark:text-amber-300 shrink-0"
+                    >
+                      <Icon name="tabler:clock" class="w-3.5 h-3.5" />
+                      <span data-deadline-text>Deadline: {formattedDeadline}</span>
+                    </span>
+                  )}
+                </div>
+                <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                  {campaign.description}
+                </p>
+              </div>
+
+              {/* Compose Area */}
+              <div class="p-6 sm:p-8 space-y-5">
+                {/* Recipients Display */}
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 text-xs sm:text-sm space-y-1.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="break-all">
+                      <span class="font-semibold uppercase text-slate-500 dark:text-slate-400 mr-1.5">To:</span>
+                      <span class="font-mono text-slate-800 dark:text-slate-200">{toAddressString}</span>
+                    </div>
+                    <button
+                      type="button"
+                      data-copy-recipients
+                      class="inline-flex items-center gap-1 text-xs font-semibold text-primary dark:text-blue-400 hover:underline shrink-0 cursor-pointer"
+                    >
+                      <Icon name="tabler:copy" class="w-3.5 h-3.5" />
+                      <span data-copy-recipients-label>Copy recipients</span>
+                    </button>
+                  </div>
+
+                  {ccAddressString && (
+                    <div class="break-all pt-1 border-t border-slate-200/70 dark:border-slate-700/70">
+                      <span class="font-semibold uppercase text-slate-500 dark:text-slate-400 mr-1.5">CC:</span>
+                      <span class="font-mono text-slate-800 dark:text-slate-200">{ccAddressString}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subject Line */}
+                <div>
+                  <label
+                    for={`subject-${campaign.id}`}
+                    class="block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-1.5"
+                  >
+                    Subject Line
+                  </label>
+                  <input
+                    id={`subject-${campaign.id}`}
+                    type="text"
+                    data-campaign-subject
+                    value={campaign.subject}
+                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                {/* Blank Email Body Field */}
+                <div>
+                  <label
+                    for={`body-${campaign.id}`}
+                    class="block text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-1.5"
+                  >
+                    Your Message
+                  </label>
+                  <textarea
+                    id={`body-${campaign.id}`}
+                    rows={7}
+                    data-campaign-body
+                    placeholder={
+                      campaign.placeholder || 'Compose your email here before opening your draft in Gmail...'
+                    }
+                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 p-3.5 text-sm leading-relaxed text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <a
+                    href={initialGmailHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-gmail-link
+                    class="btn-primary inline-flex items-center justify-center gap-2 rounded-xl py-3 px-6 text-sm sm:text-base font-semibold shadow-sm"
+                  >
+                    <Icon name="tabler:brand-gmail" class="w-5 h-5" />
+                    <span>Open Draft in Gmail</span>
+                    <Icon name="tabler:external-link" class="w-4 h-4 opacity-80" />
+                  </a>
+
+                  <a
+                    href={initialMailtoHref}
+                    data-mailto-link
+                    class="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl py-3 px-5 text-sm font-medium"
+                  >
+                    <Icon name="tabler:mail" class="w-4 h-4" />
+                    <span>Open in Email App</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    data-copy-all
+                    class="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl py-3 px-5 text-sm font-medium sm:ml-auto"
+                  >
+                    <Icon name="tabler:copy" class="w-4 h-4" />
+                    <span data-copy-all-label>Copy Full Email</span>
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <!-- Empty State when all campaigns have passed their deadline -->
+    <div
+      id="no-active-campaigns"
+      class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-12 text-center shadow-sm"
+    >
+      <Icon name="tabler:mail-check" class="w-12 h-12 mx-auto text-slate-400 dark:text-slate-500 mb-3" />
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">No Active Email Campaigns Right Now</h2>
+      <p class="text-sm sm:text-base text-muted max-w-md mx-auto">
+        All current email campaigns have wrapped up. Check back soon for new ways to take action in Allston-Brighton!
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  function parseClientDeadlineMs(deadline: string): number {
+    if (!deadline) return Number.POSITIVE_INFINITY;
+    const trimmed = deadline.trim();
+    const normalized = /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? `${trimmed}T23:59:59` : trimmed;
+    const ms = Date.parse(normalized);
+    return Number.isNaN(ms) ? Number.POSITIVE_INFINITY : ms;
+  }
+
+  function initGmailGenerator() {
+    const container = document.getElementById('campaigns-container');
+    const emptyState = document.getElementById('no-active-campaigns');
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-campaign-card]'));
+    const now = Date.now();
+
+    let visibleCount = 0;
+
+    // Sort cards by most urgent deadline first and hide expired ones in real time
+    const sortedCards = cards.sort((a, b) => {
+      const aMs = parseClientDeadlineMs(a.dataset.deadline || '');
+      const bMs = parseClientDeadlineMs(b.dataset.deadline || '');
+      return aMs - bMs;
+    });
+
+    sortedCards.forEach((card) => {
+      const deadlineStr = card.dataset.deadline || '';
+      const deadlineMs = parseClientDeadlineMs(deadlineStr);
+
+      if (deadlineMs < now) {
+        card.classList.add('hidden');
+        return;
+      }
+
+      card.classList.remove('hidden');
+      visibleCount += 1;
+      container?.appendChild(card);
+
+      if (card.dataset.initialized === 'true') return;
+      card.dataset.initialized = 'true';
+
+      const to = card.dataset.to || '';
+      const cc = card.dataset.cc || '';
+      const subjectInput = card.querySelector<HTMLInputElement>('[data-campaign-subject]');
+      const bodyTextarea = card.querySelector<HTMLTextAreaElement>('[data-campaign-body]');
+      const gmailLink = card.querySelector<HTMLAnchorElement>('[data-gmail-link]');
+      const mailtoLink = card.querySelector<HTMLAnchorElement>('[data-mailto-link]');
+      const copyRecipientsBtn = card.querySelector<HTMLButtonElement>('[data-copy-recipients]');
+      const copyRecipientsLabel = card.querySelector<HTMLElement>('[data-copy-recipients-label]');
+      const copyAllBtn = card.querySelector<HTMLButtonElement>('[data-copy-all]');
+      const copyAllLabel = card.querySelector<HTMLElement>('[data-copy-all-label]');
+
+      const updateLinks = () => {
+        const subject = subjectInput ? subjectInput.value : '';
+        const body = bodyTextarea ? bodyTextarea.value : '';
+
+        if (gmailLink) {
+          const gmailParams = new URLSearchParams({
+            view: 'cm',
+            fs: '1',
+            to,
+            su: subject,
+            body,
+          });
+          if (cc) {
+            gmailParams.set('cc', cc);
+          }
+          gmailLink.href = `https://mail.google.com/mail/?${gmailParams.toString()}`;
+        }
+
+        if (mailtoLink) {
+          const mailtoParams = new URLSearchParams();
+          if (cc) {
+            mailtoParams.set('cc', cc);
+          }
+          mailtoParams.set('subject', subject);
+          mailtoParams.set('body', body);
+          const queryString = mailtoParams.toString().replace(/\+/g, '%20');
+          mailtoLink.href = `mailto:${to}?${queryString}`;
+        }
+      };
+
+      subjectInput?.addEventListener('input', updateLinks);
+      bodyTextarea?.addEventListener('input', updateLinks);
+
+      copyRecipientsBtn?.addEventListener('click', async () => {
+        const allRecipients = [to, cc].filter(Boolean).join(', ');
+        try {
+          await navigator.clipboard.writeText(allRecipients);
+          if (copyRecipientsLabel) {
+            const original = copyRecipientsLabel.textContent;
+            copyRecipientsLabel.textContent = 'Copied!';
+            setTimeout(() => {
+              copyRecipientsLabel.textContent = original;
+            }, 2000);
+          }
+        } catch {
+          // ignore clipboard errors
+        }
+      });
+
+      copyAllBtn?.addEventListener('click', async () => {
+        const subject = subjectInput ? subjectInput.value : '';
+        const body = bodyTextarea ? bodyTextarea.value : '';
+        const headerLines = [`To: ${to}`];
+        if (cc) headerLines.push(`CC: ${cc}`);
+        headerLines.push(`Subject: ${subject}`);
+        const fullText = `${headerLines.join('\n')}\n\n${body}`;
+
+        try {
+          await navigator.clipboard.writeText(fullText);
+          if (copyAllLabel) {
+            const original = copyAllLabel.textContent;
+            copyAllLabel.textContent = 'Copied!';
+            setTimeout(() => {
+              copyAllLabel.textContent = original;
+            }, 2000);
+          }
+        } catch {
+          // ignore clipboard errors
+        }
+      });
+
+      updateLinks();
+    });
+
+    if (emptyState) {
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    }
+  }
+
+  initGmailGenerator();
+  document.addEventListener('astro:page-load', initGmailGenerator);
+</script>
